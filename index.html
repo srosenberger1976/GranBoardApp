@@ -1077,35 +1077,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
-             // =================================================================
-        // MKK SOUND-RETTUNG (PERFEKT AN DEINE REINSTE REPRÄSENTATION ANGEPASST!)
-        // =================================================================
-        if (document.getElementById('sound_Single_Input')) {
-            // Normale Treffer & Fehlwürfe
-            document.getElementById('sound_Single_Input').value = localStorage.getItem('mkk_sound_single') || 'Einfach-pip.wav';
-            document.getElementById('sound_Double_Input').value = localStorage.getItem('mkk_sound_double') || 'Doppel-lauter.wav';
-            document.getElementById('sound_Miss_Input').value = localStorage.getItem('mkk_sound_miss') || 'Vorbei.wav';
-            document.getElementById('sound_Triple_Input').value = localStorage.getItem('mkk_sound_triple') || 'Trippel-pip.wav';
-            
-            // Die Trippel-Specials
-            document.getElementById('sound_T17_Input').value = localStorage.getItem('mkk_sound_t17') || 'Trippel17-lauter.wav';
-            document.getElementById('sound_T18_Input').value = localStorage.getItem('mkk_sound_t18') || 'Trippel18-lauter.wav';
-            document.getElementById('sound_T19_Input').value = localStorage.getItem('mkk_sound_t19') || 'Trippel19-lauter.wav';
-            document.getElementById('sound_T20_Input').value = localStorage.getItem('mkk_sound_t20') || 'Trippel20-lauter.wav';
-            
-            // Bullseye-Felder
-            document.getElementById('sound_SingleBull_Input').value = localStorage.getItem('mkk_sound_sbull') || 'Bull-laut.wav';
-            document.getElementById('sound_DoubleBull_Input').value = localStorage.getItem('mkk_sound_dbull') || 'Bull-lauter.wav';
-            
-            // Spiel-Zustände
-            document.getElementById('sound_Bust_Input').value = localStorage.getItem('mkk_sound_bust') || 'überworfen.wav';
-            document.getElementById('sound_Change_Input').value = localStorage.getItem('mkk_sound_change') || 'spielerwechsel.wav';
-            document.getElementById('sound_Win_Input').value = localStorage.getItem('mkk_sound_win') || 'Gewonnen.wav';
-            
-            console.log("MKK-Sound-Erkennung: Hauptverzeichnis-Online-Pfade geladen!");
-        }
-
-
 
 
 
@@ -1202,28 +1173,33 @@ function startLigaSpiel() {
 
 
         // =================================================================
-        // MKK SOUND-RETTUNG (PERFEKT AN DEINE CODES UND INPUTS ANGEPASST!)
+        // MKK SOUND-RETTUNG (NUR NOCH EINMAL DRINNEN & HAARGENAU FÜR GITHUB!)
         // =================================================================
         if (document.getElementById('sound_Single_Input')) {
+            // Echte Treffer & Fehlwürfe
             document.getElementById('sound_Single_Input').value = localStorage.getItem('mkk_sound_single') || 'Einfach-pip.wav';
             document.getElementById('sound_Double_Input').value = localStorage.getItem('mkk_sound_double') || 'Doppel-lauter.wav';
             document.getElementById('sound_Miss_Input').value = localStorage.getItem('mkk_sound_miss') || 'Vorbei.wav';
             document.getElementById('sound_Triple_Input').value = localStorage.getItem('mkk_sound_triple') || 'Trippel-pip.wav';
+            
+            // Die Trippel-Specials
             document.getElementById('sound_T17_Input').value = localStorage.getItem('mkk_sound_t17') || 'Trippel17-lauter.wav';
             document.getElementById('sound_T18_Input').value = localStorage.getItem('mkk_sound_t18') || 'Trippel18-lauter.wav';
             document.getElementById('sound_T19_Input').value = localStorage.getItem('mkk_sound_t19') || 'Trippel19-lauter.wav';
             document.getElementById('sound_T20_Input').value = localStorage.getItem('mkk_sound_t20') || 'Trippel20-lauter.wav';
             
-            // Haargenau nach deinem funktionierenden Speicher-Code benannt:
+            // Bullseye-Felder
             document.getElementById('sound_SingleBull_Input').value = localStorage.getItem('mkk_sound_sbull') || 'Bull-laut.wav';
             document.getElementById('sound_DoubleBull_Input').value = localStorage.getItem('mkk_sound_dbull') || 'Bull-lauter.wav';
             
-            document.getElementById('sound_Bust_Input').value = localStorage.getItem('mkk_sound_bust') || 'überworfen.wav';
+            // Spiel-Zustände (ueberworfen ohne Umlaute für GitHub)
+            document.getElementById('sound_Bust_Input').value = localStorage.getItem('mkk_sound_bust') || 'ueberworfen.wav';
             document.getElementById('sound_Change_Input').value = localStorage.getItem('mkk_sound_change') || 'spielerwechsel.wav';
             document.getElementById('sound_Win_Input').value = localStorage.getItem('mkk_sound_win') || 'Gewonnen.wav';
             
-            console.log("MKK-Sound-Erkennung: Alle deutschen Custom-Sounds erfolgreich geladen!");
+            console.log("MKK-Sound-Erkennung: Einzigartiger Online-Pfade-Block erfolgreich geladen!");
         }
+
 
   // ... hier stehen die letzten originalen Befehle deiner Funktion startLigaSpiel() ...
   updateSubstitutionDropdowns();
