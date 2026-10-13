@@ -1077,25 +1077,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
-        // =================================================================
-        // MKK SOUND-RETTUNG (JETZT SICHER IM HAUPTBLOCK INTEGRIERT!)
+             // =================================================================
+        // MKK SOUND-RETTUNG (PERFEKT AN DEINE REINSTE REPRÄSENTATION ANGEPASST!)
         // =================================================================
         if (document.getElementById('sound_Single_Input')) {
-            document.getElementById('sound_Single_Input').value = localStorage.getItem('mkk_sound_single') || 'single.wav';
-            document.getElementById('sound_Double_Input').value = localStorage.getItem('mkk_sound_double') || 'double.wav';
-            document.getElementById('sound_Miss_Input').value = localStorage.getItem('mkk_sound_miss') || 'miss.wav';
-            document.getElementById('sound_Triple_Input').value = localStorage.getItem('mkk_sound_triple') || 'triple.wav';
-            document.getElementById('sound_T17_Input').value = localStorage.getItem('mkk_sound_t17') || 't17.wav';
-            document.getElementById('sound_T18_Input').value = localStorage.getItem('mkk_sound_t18') || 't18.wav';
-            document.getElementById('sound_T19_Input').value = localStorage.getItem('mkk_sound_t19') || 't19.wav';
-            document.getElementById('sound_T20_Input').value = localStorage.getItem('mkk_sound_t20') || 't20.wav';
-            document.getElementById('sound_SingleBull_Input').value = localStorage.getItem('mkk_sound_sbull') || 'bull.wav';
-            document.getElementById('sound_DoubleBull_Input').value = localStorage.getItem('mkk_sound_dbull') || 'bullseye.wav';
-            document.getElementById('sound_Bust_Input').value = localStorage.getItem('mkk_sound_bust') || 'bust.wav';
-            document.getElementById('sound_Change_Input').value = localStorage.getItem('mkk_sound_change') || 'playerchange.wav';
-            document.getElementById('sound_Win_Input').value = localStorage.getItem('mkk_sound_win') || 'gamewin.wav';
-            console.log("MKK-Sound-Erkennung: Sound-Dateinamen erfolgreich nach F5 geladen!");
+            // Normale Treffer & Fehlwürfe
+            document.getElementById('sound_Single_Input').value = localStorage.getItem('mkk_sound_single') || 'Einfach-pip.wav';
+            document.getElementById('sound_Double_Input').value = localStorage.getItem('mkk_sound_double') || 'Doppel-lauter.wav';
+            document.getElementById('sound_Miss_Input').value = localStorage.getItem('mkk_sound_miss') || 'Vorbei.wav';
+            document.getElementById('sound_Triple_Input').value = localStorage.getItem('mkk_sound_triple') || 'Trippel-pip.wav';
+            
+            // Die Trippel-Specials
+            document.getElementById('sound_T17_Input').value = localStorage.getItem('mkk_sound_t17') || 'Trippel17-lauter.wav';
+            document.getElementById('sound_T18_Input').value = localStorage.getItem('mkk_sound_t18') || 'Trippel18-lauter.wav';
+            document.getElementById('sound_T19_Input').value = localStorage.getItem('mkk_sound_t19') || 'Trippel19-lauter.wav';
+            document.getElementById('sound_T20_Input').value = localStorage.getItem('mkk_sound_t20') || 'Trippel20-lauter.wav';
+            
+            // Bullseye-Felder
+            document.getElementById('sound_SingleBull_Input').value = localStorage.getItem('mkk_sound_sbull') || 'Bull-laut.wav';
+            document.getElementById('sound_DoubleBull_Input').value = localStorage.getItem('mkk_sound_dbull') || 'Bull-lauter.wav';
+            
+            // Spiel-Zustände
+            document.getElementById('sound_Bust_Input').value = localStorage.getItem('mkk_sound_bust') || 'überworfen.wav';
+            document.getElementById('sound_Change_Input').value = localStorage.getItem('mkk_sound_change') || 'spielerwechsel.wav';
+            document.getElementById('sound_Win_Input').value = localStorage.getItem('mkk_sound_win') || 'Gewonnen.wav';
+            
+            console.log("MKK-Sound-Erkennung: Hauptverzeichnis-Online-Pfade geladen!");
         }
+
 
 
 
