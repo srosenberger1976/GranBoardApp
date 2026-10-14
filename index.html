@@ -3073,14 +3073,15 @@ function pruefeEingabenFürWeiter() {
 
 
 
+
 // GLOBALER MKK-MANNSCHAFTSSPEICHER
 let MKK_TEAM_SPEICHER = {};
 
-// Der unzerstörbare CDN-Link zu deiner spieler.txt auf GitHub (umgeht CORS-Fehler komplett)
-const GITHUB_CDN_URL = "https://jsdelivr.net" + new Date().getTime();
+// Der CDN-Link zu deiner spieler.txt auf GitHub
+const GITHUB_CDN_URL = "https://githubusercontent.com" + new Date().getTime();
 
 function ladeMkkTeamsAusGitHubText() {
-  console.log("MKK-System: Lade frische Spielerliste vom GitHub CDN...");
+  console.log("MKK-System: Lade frische Spielerliste von GitHub...");
   
   fetch(GITHUB_CDN_URL)
     .then(response => {
@@ -3098,11 +3099,11 @@ function ladeMkkTeamsAusGitHubText() {
         if (!zeile || zeile.trim() === "") return;
         
         const spalten = zeile.split(",");
-        // Eine gültige Zeile benötigt Teamname, Nachname und Vorname (mindestens 3 Teile durch die Kommas)
+        // Sicherheitsprüfung: Eine Zeile muss mindestens Team, Nachname und Vorname enthalten
         if (spalten.length < 3) return;
         
         let teamName = spalten[0].trim();
-        // Setzt Nachname und Vorname wieder sauber zusammen
+        // Baut "Nachname, Vorname" sauber zusammen und entfernt überschüssige Leerzeichen
         let spielerName = spalten[1].trim() + ", " + spalten[2].trim();
         
         if (teamName !== "" && spielerName !== "") {
@@ -3110,7 +3111,7 @@ function ladeMkkTeamsAusGitHubText() {
           
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
-              kapitaen: spielerName, // Der erste Spieler in der Liste wird automatisch Kapitän
+              kapitaen: spielerName, // Der erste Spieler in der Liste wird Kapitän
               spieler: []
             };
           }
@@ -3119,6 +3120,7 @@ function ladeMkkTeamsAusGitHubText() {
       });
       
       console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
+      console.log("MKK-System: Geladene Teams: ", Object.keys(MKK_TEAM_SPEICHER));
       aktualisiereTeamDropdownsDynamisch();
     })
     .catch(error => {
