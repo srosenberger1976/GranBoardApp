@@ -3081,7 +3081,7 @@ document.head.appendChild(scriptXLSX);
 // Globaler Speicher für die ausgelesenen Teams
 let MKK_TEAM_SPEICHER = {};
 
-// 2. HIER DEINE RAW-URL VON GITHUB EINTRAGEN!
+// 2. DEINE RAW-URL VON GITHUB (Exakt angepasst)
 const GITHUB_EXCEL_URL = "https://githubusercontent.com";
 
 // 3. Funktion zum Laden und Parsen der vertikalen Excel-Liste
@@ -3098,7 +3098,7 @@ function ladeMkkTeamsAusExcel() {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       
-      // raw: false sorgt dafür, dass wir exakt den Text sehen, der in der Zelle steht
+      // header: 1 zwingt SheetJS, die Zeilen als Arrays ([SpalteA, SpalteB]) auszugeben
       const excelZeilen = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
       
       // Speicher zurücksetzen
@@ -3106,23 +3106,26 @@ function ladeMkkTeamsAusExcel() {
       
       // Wir laufen durch jede Zeile der Excel-Tabelle
       excelZeilen.forEach((zeile, index) => {
-        // Überspringe die allererste Zeile, falls es eine Kopfzeile (z.B. Team, Name) ist
-        if (index === 0 && (zeile[0] === "Team" || zeile[0] === "Mannschaft")) return;
+        // Überspringe die allererste Zeile (Kopfzeile), falls dort "Team" oder "Mannschaft" steht
+        if (index === 0 && zeile && zeile[0] && (zeile[0].toString().toLowerCase().includes("team") || zeile[0].toString().toLowerCase().includes("mannschaft"))) {
+          return;
+        }
         
-        let teamName = zeile[0] ? zeile[0].trim() : "";
-        let spielerName = zeile[1] ? zeile[1].trim() : "";
+        // Zugriff strikt über Index: zeile[0] ist Spalte A, zeile[1] ist Spalte B
+        let teamName = (zeile && zeile[0]) ? zeile[0].toString().trim() : "";
+        let spielerName = (zeile && zeile[1]) ? zeile[1].toString().trim() : "";
         
-        // Nur verarbeiten, wenn sowohl Team als auch Spieler ausgefüllt sind
+        // Nur verarbeiten, wenn beide Spalten in dieser Zeile Text enthalten
         if (teamName !== "" && spielerName !== "") {
-          // Wenn das Team noch nicht im Speicher existiert, legen wir es neu an
+          // Wenn das Team noch nicht im Speicher existiert, neu anlegen
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
-              kapitaen: spielerName, // Der erste Spieler in der Liste wird standardmäßig Kapitän
+              kapitaen: spielerName, // Der erste gefundene Spieler wird standardmäßig Kapitän
               spieler: []
             };
           }
           
-          // Füge den Spieler dem Team hinzu
+          // Füge den Spieler der Mannschaft hinzu
           MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
         }
       });
@@ -3179,9 +3182,7 @@ function waehleTeamMKK(typ) {
     slots.forEach((slot, i) => {
       let html = `<select id="input_${slot}" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="pruefeEingabenFürWeiter()">`;
       
-      // Wir zeigen alle geladenen Spieler dieses Teams im Dropdown an
       daten.spieler.forEach((sp, idx) => {
-        // Setzt die ersten Spieler automatisch als Standardauswahl auf die Plätze 1-4 und Ersatz
         let sel = (idx === i) ? "selected" : "";
         html += `<option value="${sp}" ${sel}>${sp}</option>`;
       });
