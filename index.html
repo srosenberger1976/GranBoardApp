@@ -3073,24 +3073,22 @@ function pruefeEingabenFürWeiter() {
 
 
 
-// 1. SheetJS-Bibliothek für Excel-Dateien dynamisch laden
+// 1. SheetJS-Bibliothek laden
 const scriptXLSX = document.createElement('script');
 scriptXLSX.src = "https://jsdelivr.net";
 document.head.appendChild(scriptXLSX);
 
-// Globaler Speicher für die ausgelesenen Teams
 let MKK_TEAM_SPEICHER = {};
 
-// 2. DEINE RAW-URL VON GITHUB (Exakt angepasst)
-const GITHUB_EXCEL_URL = "https://githubusercontent.com";
+// Cache-Buster angehängt, damit Änderungen in Excel SOFORT in der App landen
+const GITHUB_EXCEL_URL = "https://githubusercontent.com" + new Date().getTime();
 
-// 3. Funktion zum Laden und Parsen der vertikalen Excel-Liste
 function ladeMkkTeamsAusExcel() {
   console.log("MKK-Verbindung: Starte Excel-Download von GitHub...");
   
   fetch(GITHUB_EXCEL_URL)
     .then(response => {
-      if (!response.ok) throw new Error("Netzwerkfehler beim Laden der Excel-Datei");
+      if (!response.ok) throw new Error("GitHub-Datei konnte nicht geladen werden (Status: " + response.status + ")");
       return response.arrayBuffer();
     })
     .then(data => {
@@ -3098,52 +3096,60 @@ function ladeMkkTeamsAusExcel() {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       
-      // header: 1 zwingt SheetJS, die Zeilen als Arrays ([SpalteA, SpalteB]) auszugeben
-      const excelZeilen = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+      // defval: "" sorgt dafür, dass leere Zellen nicht zum Absturz führen
+      // header: 1 liest die Datei als reines Zeilen-Array [[SpalteA, SpalteB], [SpalteA, SpalteB]]
+      const excelZeilen = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: "" });
       
-      // Speicher zurücksetzen
       MKK_TEAM_SPEICHER = {};
+      let geladeneSpielerAnzahl = 0;
       
-      // Wir laufen durch jede Zeile der Excel-Tabelle
-      excelZeilen.forEach((zeile, index) => {
-        // Überspringe die allererste Zeile (Kopfzeile), falls dort "Team" oder "Mannschaft" steht
-        if (index === 0 && zeile && zeile[0] && (zeile[0].toString().toLowerCase().includes("team") || zeile[0].toString().toLowerCase().includes("mannschaft"))) {
+      excelZeilen.forEach((zeile) => {
+        // Sicherstellen, dass die Zeile existiert und mindestens 2 Spalten hat
+        if (!zeile || zeile.length < 2) return;
+        
+        let teamName = zeile[0] ? zeile[0].toString().trim() : "";
+        let spielerName = zeile[1] ? zeile[1].toString().trim() : "";
+        
+        // Ignoriere typische Kopfzeilen-Texte, falls sie doch existieren sollten
+        if (teamName.toLowerCase() === "team" || teamName.toLowerCase() === "mannschaft" || teamName === "") {
           return;
         }
         
-        // Zugriff strikt über Index: zeile[0] ist Spalte A, zeile[1] ist Spalte B
-        let teamName = (zeile && zeile[0]) ? zeile[0].toString().trim() : "";
-        let spielerName = (zeile && zeile[1]) ? zeile[1].toString().trim() : "";
-        
-        // Nur verarbeiten, wenn beide Spalten in dieser Zeile Text enthalten
         if (teamName !== "" && spielerName !== "") {
-          // Wenn das Team noch nicht im Speicher existiert, neu anlegen
+          geladeneSpielerAnzahl++;
+          
+          // Wenn das Team neu ist, initialisieren
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
-              kapitaen: spielerName, // Der erste gefundene Spieler wird standardmäßig Kapitän
+              kapitaen: spielerName, // Der erste gefundene Spieler des Teams wird Kapitän
               spieler: []
             };
           }
-          
-          // Füge den Spieler der Mannschaft hinzu
+          // Spieler zur Mannschaft hinzufügen
           MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
         }
       });
       
-      console.log("MKK-Verbindung: Excel erfolgreich vertikal gruppiert! Geladene Teams:", Object.keys(MKK_TEAM_SPEICHER));
+      console.log("MKK: Excel erfolgreich verarbeitet. Spieler geladen: " + geladeneSpielerAnzahl);
+      console.log("MKK: Erkannte Mannschaften:", Object.keys(MKK_TEAM_SPEICHER));
+      
       aktualisiereTeamDropdownsDynamisch();
     })
     .catch(error => {
-      console.error("MKK-Fehler beim Excel-Import:", error);
-      alert("Warnung: Mannschaften konnten nicht von GitHub geladen werden. Fallback auf manuelle Eingabe aktiv.");
+      console.error("MKK-Fehler:", error);
+      alert("MKK-System-Fehler: " + error.message + "\n\nTestspiel-Modus bleibt als Fallback aktiv.");
+      aktualisiereTeamDropdownsDynamisch();
     });
 }
 
-// Baut die beiden Haupt-Dropdowns (Heim/Gast) mit den Excel-Teamnamen auf
 function aktualisiereTeamDropdownsDynamisch() {
-  const anzeigeOptionen = `<option value="">-- Team wählen --</option>
-                           <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>` + 
-                           Object.keys(MKK_TEAM_SPEICHER).map(team => `<option value="${team}">${team}</option>`).join('');
+  let anzeigeOptionen = `<option value="">-- Team wählen --</option>
+                         <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>`;
+                         
+  // Baut die echten Mannschaften aus der Excel-Datei in das Dropdown ein
+  Object.keys(MKK_TEAM_SPEICHER).sort().forEach(team => {
+    anzeigeOptionen += `<option value="${team}">${team}</option>`;
+  });
                            
   const heimSelect = document.getElementById('input_HeimName');
   const gastSelect = document.getElementById('input_GastName');
@@ -3152,7 +3158,6 @@ function aktualisiereTeamDropdownsDynamisch() {
   if(gastSelect) gastSelect.innerHTML = anzeigeOptionen;
 }
 
-// 4. Steuerung bei Auswahl eines Teams (Dropdown vs. Freitext bei Testspiel)
 function waehleTeamMKK(typ) {
   const selectFeld = document.getElementById(`input_${typ}Name`);
   if (!selectFeld) return;
@@ -3198,7 +3203,6 @@ function alleNamenLeeren() {
   window.location.reload();
 }
 
-// 5. Automatisch starten, sobald SheetJS vollständig geladen wurde
 scriptXLSX.onload = function() {
   ladeMkkTeamsAusExcel();
 };
