@@ -247,56 +247,82 @@ body {
 
 <div class="setup-panel" id="setupForm">
   
-  <!-- STUFE 1: SPIELER-EINGABE -->
-  <div id="spielerEingabeBereich" style="display: block;">
-    <h2 style="font-size:15px; margin-bottom:10px;"> MKK 👥 Liga-Setup: Spieler eingeben</h2>
-    
-      <!-- EINGABE FÜR MANNSCHAFTSNAMEN & KAPITÄNE -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="font-weight: bold; color: #00d2ff; font-size: 13px;">Name Heimteam:</label>
-          <input type="text" id="input_HeimName" value="Heimteam" style="width: 100%; margin-top: 5px; box-sizing: border-box;" oninput="pruefeEingabenFürWeiter()">
-          
-          <!-- Kapitänsfeld Heim -->
-          <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Heimteam:</label>
-          <input type="text" id="input_HeimKapitaen" value="Kapitän H" style="width: 100%; margin-top: 3px; box-sizing: border-box;">
-        </div>
-        <div>
-          <label style="font-weight: bold; color: #ff0055; font-size: 13px;">Name Gastteam:</label>
-          <input type="text" id="input_GastName" value="Gastteam" style="width: 100%; margin-top: 5px; box-sizing: border-box;" oninput="pruefeEingabenFürWeiter()">
-          
-          <!-- Kapitänsfeld Gast -->
-          <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Gastteam:</label>
-          <input type="text" id="input_GastKapitaen" value="Kapitän G" style="width: 100%; margin-top: 3px; box-sizing: border-box;">
-        </div>
-      </div>
+ <!-- STUFE 1: SPIELER-EINGABE -->
+ <div id="spielerEingabeBereich" style="display: block;">
+ <h2 style="font-size:15px; margin-bottom:10px;"> MKK 👥
+Liga-Setup: Spieler eingeben</h2>
+ 
+ <!-- EINGABE FÜR MANNSCHAFTSNAMEN & KAPITÄNE (OPTIMIERT MIT DROPDOWNS) -->
+ <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+ <div>
+ <label style="font-weight: bold; color: #00d2ff; font-size: 13px;">Name Heimteam:</label>
+ <div id="container_HeimName" style="width: 100%;">
+  <select id="input_HeimName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Heim')">
+   <option value="">-- Team wählen --</option>
+   <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
+   <option value="Team MKK Alpha">Team MKK Alpha</option>
+   <option value="Team MKK Beta">Team MKK Beta</option>
+  </select>
+ </div>
+ 
+ <!-- Kapitänsfeld Heim -->
+ <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Heimteam:</label>
+ <div id="container_HeimKapitaen" style="width: 100%;">
+  <select id="input_HeimKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
+   <option value="">-- Kein Team gewählt --</option>
+  </select>
+ </div>
+ </div>
+ <div>
+ <label style="font-weight: bold; color: #ff0055; font-size: 13px;">Name Gastteam:</label>
+ <div id="container_GastName" style="width: 100%;">
+  <select id="input_GastName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Gast')">
+   <option value="">-- Team wählen --</option>
+   <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
+   <option value="Team MKK Alpha">Team MKK Alpha</option>
+   <option value="Team MKK Beta">Team MKK Beta</option>
+  </select>
+ </div>
+ 
+ <!-- Kapitänsfeld Gast -->
+ <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Gastteam:</label>
+ <div id="container_GastKapitaen" style="width: 100%;">
+  <select id="input_GastKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
+   <option value="">-- Kein Team gewählt --</option>
+  </select>
+ </div>
+ </div>
+ </div>
+ <!-- SPIELER-SLOTS -->
+ <div class="setup-grid">
+ <div>
+ <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Heimteam</h3>
+ <div class="input-group"><label>H1:</label><div id="container_H1" style="width:100%;"><select id="input_H1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>H2:</label><div id="container_H2" style="width:100%;"><select id="input_H2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>H3:</label><div id="container_H3" style="width:100%;"><select id="input_H3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>H4:</label><div id="container_H4" style="width:100%;"><select id="input_H4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>HE1:</label><div id="container_HE1" style="width:100%;"><select id="input_HE1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>HE2:</label><div id="container_HE2" style="width:100%;"><select id="input_HE2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>HE3:</label><div id="container_HE3" style="width:100%;"><select id="input_HE3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>HE4:</label><div id="container_HE4" style="width:100%;"><select id="input_HE4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ </div>
+ <div>
+ <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Gastteam</h3>
+ <div class="input-group"><label>G1:</label><div id="container_G1" style="width:100%;"><select id="input_G1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>G2:</label><div id="container_G2" style="width:100%;"><select id="input_G2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>G3:</label><div id="container_G3" style="width:100%;"><select id="input_G3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>G4:</label><div id="container_G4" style="width:100%;"><select id="input_G4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>GE1:</label><div id="container_GE1" style="width:100%;"><select id="input_GE1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>GE2:</label><div id="container_GE2" style="width:100%;"><select id="input_GE2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>GE3:</label><div id="container_GE3" style="width:100%;"><select id="input_GE3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>GE4:</label><div id="container_GE4" style="width:100%;"><select id="input_GE4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ </div>
+ </div>
+ <!-- Roter Button zum Leeren aller Felder -->
 
 
-    <!-- SPIELER-SLOTS -->
-    <div class="setup-grid">
-      <div>
-        <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Heimteam</h3>
-        <div class="input-group"><label>H1:</label><input type="text" id="input_H1" value="Stefan" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>H2:</label><input type="text" id="input_H2" value="Paul" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>H3:</label><input type="text" id="input_H3" value="Heim 3" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>H4:</label><input type="text" id="input_H4" value="Heim 4" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>HE1:</label><input type="text" id="input_HE1" value="Ersatz H1"></div>
-        <div class="input-group"><label>HE2:</label><input type="text" id="input_HE2" value="Ersatz H2"></div>
-        <div class="input-group"><label>HE3:</label><input type="text" id="input_HE3" value="Ersatz H3"></div>
-        <div class="input-group"><label>HE4:</label><input type="text" id="input_HE4" value="Ersatz H4"></div>
-      </div>
-      <div>
-        <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Gastteam</h3>
-        <div class="input-group"><label>G1:</label><input type="text" id="input_G1" value="Gast 1" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>G2:</label><input type="text" id="input_G2" value="Gast 2" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>G3:</label><input type="text" id="input_G3" value="Gast 3" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>G4:</label><input type="text" id="input_G4" value="Gast 4" oninput="pruefeEingabenFürWeiter()"></div>
-        <div class="input-group"><label>GE1:</label><input type="text" id="input_GE1" value="Ersatz G1"></div>
-        <div class="input-group"><label>GE2:</label><input type="text" id="input_GE2" value="Ersatz G2"></div>
-        <div class="input-group"><label>GE3:</label><input type="text" id="input_GE3" value="Ersatz G3"></div>
-        <div class="input-group"><label>GE4:</label><input type="text" id="input_GE4" value="Ersatz G4"></div>
-      </div>
-    </div>
+
+
 
   <!-- NEU: Roter Button zum Leeren aller Felder -->
   <div style="text-align: center; margin-bottom: 15px;">
@@ -2923,6 +2949,258 @@ function druckeSpielberichtPDF() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 1. DATENBANK FÜR DEINE TEAMS (Hier einfach deine echten Spieler & Kapitäne eintragen)
+const MKK_TEAM_DATENBANK = {
+ "Team Alpha": {
+ kapitaen: "Kapitän Alpha",
+ spieler: ["Stefan", "Paul", "Sven", "Christian", "Ersatz A1", "Ersatz A2", "Ersatz A3", "Ersatz A4"]
+ },
+ "Team Beta": {
+ kapitaen: "Kapitän Beta",
+ spieler: ["Gast 1", "Gast 2", "Gast 3", "Gast 4", "Ersatz B1", "Ersatz B2", "Ersatz B3", "Ersatz B4"]
+ }
+};
+
+// 2. STEUERUNG DER AUSWAHL (Dropdown vs. Freitext bei Testspiel)
+function waehleTeam(teamTyp) {
+ const teamSelect = document.getElementById(`input_${teamTyp}Name`);
+ const ausgewaehltesTeam = teamSelect.value;
+ 
+ const slots = teamTyp === 'Heim' ? 
+ ['H1','H2','H3','H4','HE1','HE2','HE3','HE4'] : 
+ ['G1','G2','G3','G4','GE1','GE2','GE3','GE4'];
+
+ // FALL A: TESTSPIEL gewählt -> Schalte komplett auf manuelle TEXTFELDER um
+ if (ausgewaehltesTeam === "Testspiel") {
+ // Teamname durch Textfeld ersetzen
+ document.getElementById(`container_${teamTyp}Name`).innerHTML = 
+ `<input type="text" id="input_${teamTyp}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box;" oninput="pruefeEingabenFürWeiter()">`;
+ 
+ // Kapitän durch Textfeld ersetzen
+ document.getElementById(`container_${teamTyp}Kapitaen`).innerHTML = 
+ `<input type="text" id="input_${teamTyp}Kapitaen" value="Kapitän" style="width: 100%; margin-top: 3px; box-sizing: border-box;">`;
+ 
+ // Alle Spieler-Slots dieses Teams durch Textfelder ersetzen
+ slots.forEach((slot, index) => {
+ document.getElementById(`container_${slot}`).innerHTML = 
+ `<input type="text" id="input_${slot}" value="${slot.startsWith('HE') || slot.startsWith('GE') ? 'Ersatz ' + teamTyp + (index-3) : teamTyp + ' ' + (index+1)}" style="width: 100%;" oninput="pruefeEingabenFürWeiter()">`;
+ });
+ 
+ pruefeEingabenFürWeiter();
+ return;
+ }
+
+ // FALL B: Ein registriertes Team wurde ausgewählt -> Befülle Dropdowns automatisch
+ if (MKK_TEAM_DATENBANK[ausgewaehltesTeam]) {
+ const daten = MKK_TEAM_DATENBANK[ausgewaehltesTeam];
+ 
+ // Kapitän-Dropdown aktualisieren und sperren (da fest zugewiesen)
+ const kapContainer = document.getElementById(`container_${teamTyp}Kapitaen`);
+ kapContainer.innerHTML = `<select id="input_${teamTyp}Kapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box;"><option value="${daten.kapitaen}">${daten.kapitaen}</option></select>`;
+
+ // Spieler-Slots befüllen
+ slots.forEach((slot, index) => {
+ const spielerContainer = document.getElementById(`container_${slot}`);
+ 
+ // Erstellt ein Dropdown-Menü für den Slot
+ let html = `<select id="input_${slot}" style="width:100%;" onchange="pruefeEingabenFürWeiter()">`;
+ 
+ // Alle Spieler des Teams als Option hinzufügen
+ daten.spieler.forEach((spielerName, sIdx) => {
+ // Setzt automatisch eine logische Vorauswahl (Index-basiert)
+ const selected = (sIdx === index) ? "selected" : "";
+ html += `<option value="${spielerName}" ${selected}>${spielerName}</option>`;
+ });
+ html += `</select>`;
+ spielerContainer.innerHTML = html;
+ });
+ } else {
+ // Zurücksetzen falls "-- Team wählen --" geklickt wird
+ slots.forEach(slot => { document.getElementById(`container_${slot}`).innerHTML = `<select id="input_${slot}" style="width:100%;"></select>`; });
+ document.getElementById(`container_${teamTyp}Kapitaen`).innerHTML = `<select id="input_${teamTyp}Kapitaen" style="width:100%;"></select>`;
+ }
+ 
+ pruefeEingabenFürWeiter();
+}
+
+// 3. AKTUALISIERTE VALIDIERUNG (Ersetzt die alte Funktion auf Seite 27 vollständig!)
+function pruefeEingabenFürWeiter() {
+ // Holt sich die Werte sicher – egal ob sie gerade aus einem Input oder Select stammen
+ const heimName = document.getElementById('input_HeimName') ? document.getElementById('input_HeimName').value.trim() : "";
+ const gastName = document.getElementById('input_GastName') ? document.getElementById('input_GastName').value.trim() : "";
+ 
+ const h1 = document.getElementById('input_H1') ? document.getElementById('input_H1').value.trim() : "";
+ const h2 = document.getElementById('input_H2') ? document.getElementById('input_H2').value.trim() : "";
+ const h3 = document.getElementById('input_H3') ? document.getElementById('input_H3').value.trim() : "";
+ const h4 = document.getElementById('input_H4') ? document.getElementById('input_H4').value.trim() : "";
+ const g1 = document.getElementById('input_G1') ? document.getElementById('input_G1').value.trim() : "";
+ const g2 = document.getElementById('input_G2') ? document.getElementById('input_G2').value.trim() : "";
+ const g3 = document.getElementById('input_G3') ? document.getElementById('input_G3').value.trim() : "";
+ const g4 = document.getElementById('input_G4') ? document.getElementById('input_G4').value.trim() : "";
+ 
+ const btn = document.getElementById('btnWeiterZuSpielauswahl');
+ if (!btn) return;
+
+ // Bedingung: Namen dürfen nicht leer sein und kein unvollständiges Dropdown enthalten
+ if (heimName !== "" && gastName !== "" && h1 !== "" && h2 !== "" && h3 !== "" && h4 !== "" && g1 !== "" && g2 !== "" && g3 !== "" && g4 !== "") {
+ btn.disabled = false;
+ btn.innerText = "Weiter zur Spielauswahl";
+ btn.style.background = "#007bff";
+ btn.style.color = "#fff";
+ btn.style.cursor = "pointer";
+ } else {
+ btn.disabled = true;
+ btn.innerText = "Bitte Auswahl treffen";
+ btn.style.background = "#555";
+ btn.style.color = "#aaa";
+ btn.style.cursor = "not-allowed";
+ }
+}
+
+
+
+
+// 1. SheetJS-Bibliothek für Excel-Dateien dynamisch laden
+const scriptXLSX = document.createElement('script');
+scriptXLSX.src = "https://jsdelivr.net";
+document.head.appendChild(scriptXLSX);
+
+// Globaler Speicher für die ausgelesenen Teams
+let MKK_TEAM_SPEICHER = {};
+
+// 2. HIER DEINE RAW-URL VON GITHUB EINTRAGEN!
+const GITHUB_EXCEL_URL = "https://githubusercontent.com";
+
+// 3. Funktion zum Laden und Parsen der vertikalen Excel-Liste
+function ladeMkkTeamsAusExcel() {
+  console.log("MKK-Verbindung: Starte Excel-Download von GitHub...");
+  
+  fetch(GITHUB_EXCEL_URL)
+    .then(response => {
+      if (!response.ok) throw new Error("Netzwerkfehler beim Laden der Excel-Datei");
+      return response.arrayBuffer();
+    })
+    .then(data => {
+      const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      // raw: false sorgt dafür, dass wir exakt den Text sehen, der in der Zelle steht
+      const excelZeilen = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+      
+      // Speicher zurücksetzen
+      MKK_TEAM_SPEICHER = {};
+      
+      // Wir laufen durch jede Zeile der Excel-Tabelle
+      excelZeilen.forEach((zeile, index) => {
+        // Überspringe die allererste Zeile, falls es eine Kopfzeile (z.B. Team, Name) ist
+        if (index === 0 && (zeile[0] === "Team" || zeile[0] === "Mannschaft")) return;
+        
+        let teamName = zeile[0] ? zeile[0].trim() : "";
+        let spielerName = zeile[1] ? zeile[1].trim() : "";
+        
+        // Nur verarbeiten, wenn sowohl Team als auch Spieler ausgefüllt sind
+        if (teamName !== "" && spielerName !== "") {
+          // Wenn das Team noch nicht im Speicher existiert, legen wir es neu an
+          if (!MKK_TEAM_SPEICHER[teamName]) {
+            MKK_TEAM_SPEICHER[teamName] = {
+              kapitaen: spielerName, // Der erste Spieler in der Liste wird standardmäßig Kapitän
+              spieler: []
+            };
+          }
+          
+          // Füge den Spieler dem Team hinzu
+          MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
+        }
+      });
+      
+      console.log("MKK-Verbindung: Excel erfolgreich vertikal gruppiert! Geladene Teams:", Object.keys(MKK_TEAM_SPEICHER));
+      aktualisiereTeamDropdownsDynamisch();
+    })
+    .catch(error => {
+      console.error("MKK-Fehler beim Excel-Import:", error);
+      alert("Warnung: Mannschaften konnten nicht von GitHub geladen werden. Fallback auf manuelle Eingabe aktiv.");
+    });
+}
+
+// Baut die beiden Haupt-Dropdowns (Heim/Gast) mit den Excel-Teamnamen auf
+function aktualisiereTeamDropdownsDynamisch() {
+  const anzeigeOptionen = `<option value="">-- Team wählen --</option>
+                           <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>` + 
+                           Object.keys(MKK_TEAM_SPEICHER).map(team => `<option value="${team}">${team}</option>`).join('');
+                           
+  const heimSelect = document.getElementById('input_HeimName');
+  const gastSelect = document.getElementById('input_GastName');
+  
+  if(heimSelect) heimSelect.innerHTML = anzeigeOptionen;
+  if(gastSelect) gastSelect.innerHTML = anzeigeOptionen;
+}
+
+// 4. Steuerung bei Auswahl eines Teams (Dropdown vs. Freitext bei Testspiel)
+function waehleTeamMKK(typ) {
+  const selectFeld = document.getElementById(`input_${typ}Name`);
+  if (!selectFeld) return;
+  const auswahl = selectFeld.value;
+  const slots = typ === 'Heim' ? ['H1','H2','H3','H4','HE1','HE2','HE3','HE4'] : ['G1','G2','G3','G4','GE1','GE2','GE3','GE4'];
+  
+  if (auswahl === "") {
+    document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<select id="input_${typ}Kapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Kein Team gewählt --</option></select>`;
+    slots.forEach(slot => {
+      let labelText = slot.includes('E') ? '-- Ersatz wählen --' : '-- Spieler wählen --';
+      document.getElementById(`container_${slot}`).innerHTML = `<select id="input_${slot}" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">${labelText}</option></select>`;
+    });
+  }
+  else if (auswahl === "Testspiel") {
+    document.getElementById(`container_${typ}Name`).innerHTML = `<input type="text" id="input_${typ}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
+    document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="Kapitän ${typ === 'Heim' ? 'H' : 'G'}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
+    
+    slots.forEach((slot, i) => {
+      let standardWert = (i < 4) ? (typ === 'Heim' ? ['Stefan','Paul','Heim 3','Heim 4'][i] : ['Gast 1','Gast 2','Gast 3','Gast 4'][i]) : (typ === 'Heim' ? 'Ersatz H' + (i-3) : 'Ersatz G' + (i-3));
+      document.getElementById(`container_${slot}`).innerHTML = `<input type="text" id="input_${slot}" value="${standardWert}" style="width: 100%; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
+    });
+  } 
+  else if (MKK_TEAM_SPEICHER[auswahl]) {
+    const daten = MKK_TEAM_SPEICHER[auswahl];
+    document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="${daten.kapitaen}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
+    
+    slots.forEach((slot, i) => {
+      let html = `<select id="input_${slot}" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="pruefeEingabenFürWeiter()">`;
+      
+      // Wir zeigen alle geladenen Spieler dieses Teams im Dropdown an
+      daten.spieler.forEach((sp, idx) => {
+        // Setzt die ersten Spieler automatisch als Standardauswahl auf die Plätze 1-4 und Ersatz
+        let sel = (idx === i) ? "selected" : "";
+        html += `<option value="${sp}" ${sel}>${sp}</option>`;
+      });
+      html += `</select>`;
+      document.getElementById(`container_${slot}`).innerHTML = html;
+    });
+  }
+  if(typeof pruefeEingabenFürWeiter === 'function') pruefeEingabenFürWeiter();
+}
+
+function alleNamenLeeren() {
+  window.localStorage.clear();
+  window.location.reload();
+}
+
+// 5. Automatisch starten, sobald SheetJS vollständig geladen wurde
+scriptXLSX.onload = function() {
+  ladeMkkTeamsAusExcel();
+};
 
 </script>
 </body>
