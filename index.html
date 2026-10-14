@@ -3097,20 +3097,25 @@ function ladeMkkTeamsAusGitHubText() {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      // Teilt den Text sauber in einzelne Zeilen auf
+      // Teilt den Text sauber in einzelne Zeilen auf (Sicher für Windows und Linux)
       const zeilen = textDaten.split(\(/\r\)?\n/);
       
       zeilen.forEach(zeile => {
         if (!zeile || zeile.trim() === "") return;
         
         const spalten = zeile.split(",");
+        // Sicherheitsprüfung: Eine Zeile benötigt mindestens Teamname, Nachname und Vorname
         if (spalten.length < 3) return;
         
+        // Zugriff erfolgt jetzt absolut sauber über die echten Spalten-Indizes (0, 1, 2, 3)
         let teamName = spalten[0] ? spalten[0].replace(/["']/g, "").trim() : "";
         let nachname = spalten[1] ? spalten[1].replace(/["']/g, "").trim() : "";
         let vorname  = spalten[2] ? spalten[2].replace(/["']/g, "").trim() : "";
+        
+        // Holt die Passnummer aus der 4. Spalte (Index 3), falls vorhanden
         let passNummer = spalten[3] ? spalten[3].replace(/["']/g, "").trim() : "";
         
+        // Setzt den Namen sauber zu "Nachname, Vorname" zusammen
         let spielerName = nachname + ", " + vorname;
         
         if (teamName !== "" && nachname !== "" && vorname !== "") {
@@ -3118,12 +3123,14 @@ function ladeMkkTeamsAusGitHubText() {
           
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
-              kapitaen: spielerName, 
+              kapitaen: spielerName, // Der erste Spieler in der Liste wird standardmäßig Kapitän
               spieler: [],
               passnummern: {}
             };
           }
+          // Fügt den Spieler der Mannschaft hinzu
           MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
+          // Speichert die Passnummer unsichtbar für den späteren PDF-Druck ab
           MKK_TEAM_SPEICHER[teamName].passnummern[spielerName] = passNummer;
         }
       });
@@ -3131,6 +3138,7 @@ function ladeMkkTeamsAusGitHubText() {
       console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
       aktualisiereTeamDropdownsDynamisch();
       
+      // Nach dem Laden: Prüfen, ob durch F5 ein Zustand wiederhergestellt werden muss
       if (typeof wiederherstelleDropdownsNachF5 === 'function') {
         wiederherstelleDropdownsNachF5();
       }
@@ -3171,74 +3179,40 @@ function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
     });
   }
   else if (auswahl === "Testspiel") {
-    document.getElementById(`container_${typ}Name`).innerHTML = `<input type="text" id="input_${typ}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="mkkDropdownFilterSchleife('${typ}')">`;
+    document.getElementById(`container_${typ}Name`).innerHTML = `<input type="text" id="input_${typ}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
     document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="Kapitän ${typ === 'Heim' ? 'H' : 'G'}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
     
     slots.forEach((slot, i) => {
       let standardWert = (i < 4) ? (typ === 'Heim' ? ['Stefan','Paul','Heim 3','Heim 4'][i] : ['Gast 1','Gast 2','Gast 3','Gast 4'][i]) : (typ === 'Heim' ? 'Ersatz H' + (i-3) : 'Ersatz G' + (i-3));
-      document.getElementById(`container_${slot}`).innerHTML = `<input type="text" id="input_${slot}" value="${standardWert}" style="width: 100%; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="mkkDropdownFilterSchleife('${typ}')">`;
+      document.getElementById(`container_${slot}`).innerHTML = `<input type="text" id="input_${slot}" value="${standardWert}" style="width: 100%; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
     });
   } 
   else if (MKK_TEAM_SPEICHER[auswahl]) {
     const daten = MKK_TEAM_SPEICHER[auswahl];
     document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="${daten.kapitaen}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
     
-    slots.forEach((slot) => {
-      let labelText = slot.includes('E') ? '-- Ersatz wählen --' : '-- Spieler wählen --';
-      let html = `<select id="input_${slot}" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="mkkDropdownFilterSchleife('${typ}')">`;
+    slots.forEach((slot, i) => {
+      let html = `<select id="input_${slot}" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="pruefeEingabenFürWeiter()">`;
       
-      let vorausgewaehlterSpieler = vorauswahlGetaetigt ? localStorage.getItem(`mkk_f5_saved_${slot}`) : "";
-      
-      html += `<option value="">${labelText}</option>`;
-      daten.spieler.forEach((sp) => {
-        let sel = (vorausgewaehlterSpieler === sp) ? "selected" : "";
+      daten.spieler.forEach((sp, idx) => {
+        let sel = "";
+        if (vorauswahlGetaetigt) {
+          let gespeicherterName = localStorage.getItem(`mkk_f5_saved_${slot}`);
+          if (gespeicherterName === sp) sel = "selected";
+        } else {
+          // Teilt die echten Spieler der Reihe nach sauber auf (Position 1 bis 8)
+          let zielIndex = (idx === i) ? true : (idx === daten.spieler.length - 1 && i >= daten.spieler.length);
+          if (sel === "" && (idx === i || zielIndex === true)) {
+             sel = "selected";
+          }
+        }
         html += `<option value="${sp}" ${sel}>${sp}</option>`;
       });
       html += `</select>`;
       document.getElementById(`container_${slot}`).innerHTML = html;
     });
-    
-    mkkDropdownFilterSchleife(typ);
   }
-}
-
-function mkkDropdownFilterSchleife(typ) {
-  const selectFeld = document.getElementById(`input_${typ}Name`);
-  if (!selectFeld || selectFeld.value === "Testspiel" || selectFeld.value === "") {
-    if(typeof pruefeEingabenFürWeiter === 'function') originaleValidierung();
-    return;
-  }
-  
-  const daten = MKK_TEAM_SPEICHER[selectFeld.value];
-  if (!daten) return;
-  
-  const slots = typ === 'Heim' ? ['H1','H2','H3','H4','HE1','HE2','HE3','HE4'] : ['G1','G2','G3','G4','GE1','GE2','GE3','GE4'];
-  
-  let ausgewaehlteSpieler = [];
-  slots.forEach(slot => {
-    let el = document.getElementById(`input_${slot}`);
-    if (el && el.value !== "") ausgewaehlteSpieler.push(el.value);
-  });
-  
-  slots.forEach(aktuellerSlot => {
-    let el = document.getElementById(`input_${aktuellerSlot}`);
-    if (!el) return;
-    
-    let aktuellerWert = el.value;
-    let labelText = aktuellerSlot.includes('E') ? '-- Ersatz wählen --' : '-- Spieler wählen --';
-    
-    let html = `<option value="">${labelText}</option>`;
-    daten.spieler.forEach(sp => {
-      if (sp === aktuellerWert || !ausgewaehlteSpieler.includes(sp)) {
-        let sel = (sp === aktuellerWert) ? "selected" : "";
-        html += `<option value="${sp}" ${sel}>${sp}</option>`;
-      }
-    });
-    el.innerHTML = html;
-  });
-  
-  sichereDropdownZustandFuerF5();
-  if (typeof originaleValidierung === 'function') originaleValidierung();
+  if(typeof pruefeEingabenFürWeiter === 'function') pruefeEingabenFürWeiter();
 }
 
 function sichereDropdownZustandFuerF5() {
@@ -3274,10 +3248,8 @@ function alleNamenLeeren() {
 
 const originaleValidierung = pruefeEingabenFürWeiter;
 pruefeEingabenFürWeiter = function() {
-  if(document.getElementById('input_HeimName') && document.getElementById('input_HeimName').value !== "Testspiel") {
-    sichereDropdownZustandFuerF5();
-    if (typeof originaleValidierung === 'function') originaleValidierung();
-  }
+  sichereDropdownZustandFuerF5();
+  if (typeof originaleValidierung === 'function') originaleValidierung();
 };
 
 ladeMkkTeamsAusGitHubText();
