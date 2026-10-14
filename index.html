@@ -3096,7 +3096,6 @@ function ladeMkkTeamsAusExcel() {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       
-      // defval: "" sorgt dafür, dass leere Zellen nicht zum Absturz führen
       // header: 1 liest die Datei als reines Zeilen-Array [[SpalteA, SpalteB], [SpalteA, SpalteB]]
       const excelZeilen = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: "" });
       
@@ -3104,17 +3103,26 @@ function ladeMkkTeamsAusExcel() {
       let geladeneSpielerAnzahl = 0;
       
       excelZeilen.forEach((zeile) => {
-        // Sicherstellen, dass die Zeile existiert und mindestens 2 Spalten hat
-        if (!zeile || zeile.length < 2) return;
+        // Ignoriere leere Trennzeilen im Export vollständig
+        if (!zeile || zeile.length === 0) return;
         
         let teamName = zeile[0] ? zeile[0].toString().trim() : "";
         let spielerName = zeile[1] ? zeile[1].toString().trim() : "";
         
-        // Ignoriere typische Kopfzeilen-Texte, falls sie doch existieren sollten
+        // Kopfzeilen-Filter
         if (teamName.toLowerCase() === "team" || teamName.toLowerCase() === "mannschaft" || teamName === "") {
           return;
         }
         
+        // Bereinigt die typischen Excel-Exportartefakte (Anführungszeichen & End-Kommas)
+        if (spielerName.startsWith('"') && spielerName.endsWith('"')) {
+          spielerName = spielerName.slice(1, -1);
+        }
+        if (spielerName.endsWith(',')) {
+          spielerName = spielerName.slice(0, -1).trim();
+        }
+        
+        // Nur verarbeiten, wenn Teamname und Spielername befüllt sind
         if (teamName !== "" && spielerName !== "") {
           geladeneSpielerAnzahl++;
           
@@ -3146,7 +3154,7 @@ function aktualisiereTeamDropdownsDynamisch() {
   let anzeigeOptionen = `<option value="">-- Team wählen --</option>
                          <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>`;
                          
-  // Baut die echten Mannschaften aus der Excel-Datei in das Dropdown ein
+  // Baut die echten Mannschaften alphabetisch sortiert in das Dropdown ein
   Object.keys(MKK_TEAM_SPEICHER).sort().forEach(team => {
     anzeigeOptionen += `<option value="${team}">${team}</option>`;
   });
