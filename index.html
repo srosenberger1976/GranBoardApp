@@ -3077,7 +3077,7 @@ function pruefeEingabenFürWeiter() {
 // GLOBALER MKK-MANNSCHAFTSSPEICHER
 let MKK_TEAM_SPEICHER = {};
 
-// Direkter Abruf ohne Domain-Angabe (verhindert CORS-Fehler auf GitHub Pages)
+// Direkter Abruf ohne Domain-Angabe mit Zufallszahl gegen den Browser-Cache
 const SPIELER_DATEI_URL = "spieler.txt?v=" + Math.random();
 
 function ladeMkkTeamsAusGitHubText() {
@@ -3092,23 +3092,21 @@ function ladeMkkTeamsAusGitHubText() {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      // Teilt den Text in einzelne Zeilen
+      // Teilt den Text sauber in einzelne Zeilen (plattformunabhängig)
       const zeilen = textDaten.split(\(/\r\)?\n/);
       
       zeilen.forEach(zeile => {
         if (!zeile || zeile.trim() === "") return;
         
         const spalten = zeile.split(",");
-        // Sicherheitsprüfung: Mindestens Teamname, Nachname und Vorname müssen da sein
         if (spalten.length < 3) return;
         
         let teamName = spalten[0].replace(/["']/g, "").trim();
         let nachname = spalten[1].replace(/["']/g, "").trim();
         let vorname = spalten[2].replace(/["']/g, "").trim();
         
-        // Holt die Passnummer aus der 4. Spalte (falls vorhanden), ansonsten leer lassen
-        let passNummer = (spalten[3] !== undefined) ? spalten[3].trim() : "";
-        
+        // Passnummer aus der 4. Spalte holen, falls vorhanden
+        let passNummer = (spalten[3] !== undefined) ? spalten[3].replace(/["']/g, "").trim() : "";
         let spielerName = nachname + ", " + vorname;
         
         if (teamName !== "" && spielerName !== ", ") {
@@ -3116,19 +3114,23 @@ function ladeMkkTeamsAusGitHubText() {
           
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
-              kapitaen: spielerName, // Der erste Spieler in der Liste wird Kapitän
+              kapitaen: spielerName,
               spieler: [],
-              passnummern: {} // Hier speichern wir die Nummern unsichtbar für später
+              passnummern: {}
             };
           }
           MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
-          // Ordnet dem Spielernamen seine Passnummer zu
           MKK_TEAM_SPEICHER[teamName].passnummern[spielerName] = passNummer;
         }
       });
       
       console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
       aktualisiereTeamDropdownsDynamisch();
+      
+      // NACH DEM LADEN: Prüfen, ob durch F5 ein Zustand wiederhergestellt werden muss
+      if (typeof wiederherstelleDropdownsNachF5 === 'function') {
+        wiederherstelleDropdownsNachF5();
+      }
     })
     .catch(error => {
       console.error("MKK-System-Fehler:", error);
@@ -3152,7 +3154,7 @@ function aktualisiereTeamDropdownsDynamisch() {
   if(gastSelect) gastSelect.innerHTML = anzeigeOptionen;
 }
 
-function waehleTeamMKK(typ) {
+function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
   const selectFeld = document.getElementById(`input_${typ}Name`);
   if (!selectFeld) return;
   const auswahl = selectFeld.value;
@@ -3182,7 +3184,14 @@ function waehleTeamMKK(typ) {
       let html = `<select id="input_${slot}" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="pruefeEingabenFürWeiter()">`;
       
       daten.spieler.forEach((sp, idx) => {
-        let sel = (idx === i) ? "selected" : "";
+        let sel = "";
+        // Wenn F5 gedrückt wurde, versuchen wir den exakt gespeicherten Spieler vorauszuwählen
+        if (vorauswahlGetaetigt) {
+          let gespeicherterName = localStorage.getItem(`mkk_f5_saved_${slot}`);
+          if (gespeicherterName === sp) sel = "selected";
+        } else {
+          if (idx === i) sel = "selected";
+        }
         html += `<option value="${sp}" ${sel}>${sp}</option>`;
       });
       html += `</select>`;
@@ -3192,10 +3201,45 @@ function waehleTeamMKK(typ) {
   if(typeof pruefeEingabenFürWeiter === 'function') pruefeEingabenFürWeiter();
 }
 
+// Speichert bei jeder Änderung im Dropdown den aktuellen Zustand für F5 ab
+function sichereDropdownZustandFuerF5() {
+  const slots = ['H1','H2','H3','H4','HE1','HE2','HE3','HE4','G1','G2','G3','G4','GE1','GE2','GE3','GE4'];
+  slots.forEach(slot => {
+    const el = document.getElementById(`input_${slot}`);
+    if (el) localStorage.setItem(`mkk_f5_saved_${slot}`, el.value);
+  });
+  const hName = document.getElementById('input_HeimName');
+  const gName = document.getElementById('input_GastName');
+  if (hName) localStorage.setItem('mkk_f5_saved_HeimName', hName.value);
+  if (gName) localStorage.setItem('mkk_f5_saved_GastName', gName.value);
+}
+
+// Stellt nach dem F5-Klick den Dropdown-Zustand wieder her
+function wiederherstelleDropdownsNachF5() {
+  const savedHeim = localStorage.getItem('mkk_f5_saved_HeimName');
+  const savedGast = localStorage.getItem('mkk_f5_saved_GastName');
+  
+  if (savedHeim && document.getElementById('input_HeimName')) {
+    document.getElementById('input_HeimName').value = savedHeim;
+    waehleTeamMKK('Heim', true);
+  }
+  if (savedGast && document.getElementById('input_GastName')) {
+    document.getElementById('input_GastName').value = savedGast;
+    waehleTeamMKK('Gast', true);
+  }
+}
+
 function alleNamenLeeren() {
   window.localStorage.clear();
   window.location.reload();
 }
+
+// Klinkt sich in deine bestehende Validierung ein, um Änderungen live abzusichern
+const originaleValidierung = pruefeEingabenFürWeiter;
+pruefeEingabenFürWeiter = function() {
+  sichereDropdownZustandFuerF5();
+  if (typeof originaleValidierung === 'function') originaleValidierung();
+};
 
 ladeMkkTeamsAusGitHubText();
 
