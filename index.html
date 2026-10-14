@@ -3073,79 +3073,57 @@ function pruefeEingabenFürWeiter() {
 
 
 
-// 1. SheetJS-Bibliothek laden
-const scriptXLSX = document.createElement('script');
-scriptXLSX.src = "https://jsdelivr.net";
-document.head.appendChild(scriptXLSX);
-
+// GLOBALER MKK-MANNSCHAFTSSPEICHER
 let MKK_TEAM_SPEICHER = {};
 
-// Cache-Buster angehängt, damit Änderungen in Excel SOFORT in der App landen
-const GITHUB_EXCEL_URL = "https://githubusercontent.com" + new Date().getTime();
+// Der unzerstörbare CDN-Link zu deiner spieler.txt auf GitHub (umgeht CORS-Fehler komplett)
+const GITHUB_CDN_URL = "https://jsdelivr.net" + new Date().getTime();
 
-function ladeMkkTeamsAusExcel() {
-  console.log("MKK-Verbindung: Starte Excel-Download von GitHub...");
+function ladeMkkTeamsAusGitHubText() {
+  console.log("MKK-System: Lade frische Spielerliste vom GitHub CDN...");
   
-  fetch(GITHUB_EXCEL_URL)
+  fetch(GITHUB_CDN_URL)
     .then(response => {
-      if (!response.ok) throw new Error("GitHub-Datei konnte nicht geladen werden (Status: " + response.status + ")");
-      return response.arrayBuffer();
+      if (!response.ok) throw new Error("Verbindungsfehler zur Spielerdatei (Status: " + response.status + ")");
+      return response.text();
     })
-    .then(data => {
-      const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      
-      // header: 1 liest die Datei als reines Zeilen-Array [[SpalteA, SpalteB], [SpalteA, SpalteB]]
-      const excelZeilen = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: "" });
-      
+    .then(textDaten => {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      excelZeilen.forEach((zeile) => {
-        // Ignoriere leere Trennzeilen im Export vollständig
-        if (!zeile || zeile.length === 0) return;
+      // Teilt den Text in einzelne Zeilen
+      const zeilen = textDaten.split("\n");
+      
+      zeilen.forEach(zeile => {
+        if (!zeile || zeile.trim() === "") return;
         
-        let teamName = zeile[0] ? zeile[0].toString().trim() : "";
-        let spielerName = zeile[1] ? zeile[1].toString().trim() : "";
+        const spalten = zeile.split(",");
+        // Eine gültige Zeile benötigt Teamname, Nachname und Vorname (mindestens 3 Teile durch die Kommas)
+        if (spalten.length < 3) return;
         
-        // Kopfzeilen-Filter
-        if (teamName.toLowerCase() === "team" || teamName.toLowerCase() === "mannschaft" || teamName === "") {
-          return;
-        }
+        let teamName = spalten[0].trim();
+        // Setzt Nachname und Vorname wieder sauber zusammen
+        let spielerName = spalten[1].trim() + ", " + spalten[2].trim();
         
-        // Bereinigt die typischen Excel-Exportartefakte (Anführungszeichen & End-Kommas)
-        if (spielerName.startsWith('"') && spielerName.endsWith('"')) {
-          spielerName = spielerName.slice(1, -1);
-        }
-        if (spielerName.endsWith(',')) {
-          spielerName = spielerName.slice(0, -1).trim();
-        }
-        
-        // Nur verarbeiten, wenn Teamname und Spielername befüllt sind
         if (teamName !== "" && spielerName !== "") {
           geladeneSpielerAnzahl++;
           
-          // Wenn das Team neu ist, initialisieren
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
-              kapitaen: spielerName, // Der erste gefundene Spieler des Teams wird Kapitän
+              kapitaen: spielerName, // Der erste Spieler in der Liste wird automatisch Kapitän
               spieler: []
             };
           }
-          // Spieler zur Mannschaft hinzufügen
           MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
         }
       });
       
-      console.log("MKK: Excel erfolgreich verarbeitet. Spieler geladen: " + geladeneSpielerAnzahl);
-      console.log("MKK: Erkannte Mannschaften:", Object.keys(MKK_TEAM_SPEICHER));
-      
+      console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
       aktualisiereTeamDropdownsDynamisch();
     })
     .catch(error => {
-      console.error("MKK-Fehler:", error);
-      alert("MKK-System-Fehler: " + error.message + "\n\nTestspiel-Modus bleibt als Fallback aktiv.");
+      console.error("MKK-System-Fehler:", error);
+      alert("Fehler beim Abruf der Spielerliste von GitHub:\n" + error.message + "\n\nTestspiel-Modus bleibt aktiv.");
       aktualisiereTeamDropdownsDynamisch();
     });
 }
@@ -3154,7 +3132,6 @@ function aktualisiereTeamDropdownsDynamisch() {
   let anzeigeOptionen = `<option value="">-- Team wählen --</option>
                          <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>`;
                          
-  // Baut die echten Mannschaften alphabetisch sortiert in das Dropdown ein
   Object.keys(MKK_TEAM_SPEICHER).sort().forEach(team => {
     anzeigeOptionen += `<option value="${team}">${team}</option>`;
   });
@@ -3211,9 +3188,8 @@ function alleNamenLeeren() {
   window.location.reload();
 }
 
-scriptXLSX.onload = function() {
-  ladeMkkTeamsAusExcel();
-};
+// Startet den Abruf sofort beim Laden der Seite
+ladeMkkTeamsAusGitHubText();
 
 </script>
 </body>
