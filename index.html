@@ -3077,22 +3077,23 @@ function pruefeEingabenFürWeiter() {
 // GLOBALER MKK-MANNSCHAFTSSPEICHER
 let MKK_TEAM_SPEICHER = {};
 
-// Der CDN-Link zu deiner spieler.txt auf GitHub
-const GITHUB_CDN_URL = "https://githubusercontent.com" + new Date().getTime();
+// Lädt die Datei direkt aus demselben Ordner auf deinem GitHub-Server
+// Der angehängte Zeitstempel (?t=...) sorgt dafür, dass Änderungen SOFORT aktiv werden
+const SPIELER_DATEI_URL = "spieler.txt?t=" + new Date().getTime();
 
 function ladeMkkTeamsAusGitHubText() {
-  console.log("MKK-System: Lade frische Spielerliste von GitHub...");
+  console.log("MKK-System: Lade lokale Spielerliste...");
   
-  fetch(GITHUB_CDN_URL)
+  fetch(SPIELER_DATEI_URL)
     .then(response => {
-      if (!response.ok) throw new Error("Verbindungsfehler zur Spielerdatei (Status: " + response.status + ")");
+      if (!response.ok) throw new Error("Datei spieler.txt wurde im Ordner nicht gefunden (Status: " + response.status + ")");
       return response.text();
     })
     .then(textDaten => {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      // Teilt den Text in einzelne Zeilen
+      // Teilt den Text in einzelne Zeilen auf
       const zeilen = textDaten.split("\n");
       
       zeilen.forEach(zeile => {
@@ -3103,10 +3104,12 @@ function ladeMkkTeamsAusGitHubText() {
         if (spalten.length < 3) return;
         
         let teamName = spalten[0].trim();
-        // Baut "Nachname, Vorname" sauber zusammen und entfernt überschüssige Leerzeichen
-        let spielerName = spalten[1].trim() + ", " + spalten[2].trim();
+        // Baut "Nachname, Vorname" sauber zusammen und entfernt Anführungszeichen falls vorhanden
+        let nachname = spalten[1].replace(/["']/g, "").trim();
+        let vorname = spalten[2].replace(/["']/g, "").trim();
+        let spielerName = nachname + ", " + vorname;
         
-        if (teamName !== "" && spielerName !== "") {
+        if (teamName !== "" && spielerName !== ", ") {
           geladeneSpielerAnzahl++;
           
           if (!MKK_TEAM_SPEICHER[teamName]) {
@@ -3120,12 +3123,11 @@ function ladeMkkTeamsAusGitHubText() {
       });
       
       console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
-      console.log("MKK-System: Geladene Teams: ", Object.keys(MKK_TEAM_SPEICHER));
       aktualisiereTeamDropdownsDynamisch();
     })
     .catch(error => {
       console.error("MKK-System-Fehler:", error);
-      alert("Fehler beim Abruf der Spielerliste von GitHub:\n" + error.message + "\n\nTestspiel-Modus bleibt aktiv.");
+      alert("Fehler beim Abruf der Spielerliste:\n" + error.message + "\n\nTestspiel-Modus bleibt aktiv.");
       aktualisiereTeamDropdownsDynamisch();
     });
 }
@@ -3190,7 +3192,7 @@ function alleNamenLeeren() {
   window.location.reload();
 }
 
-// Startet den Abruf sofort beim Laden der Seite
+// Startet den Abruf lokal beim Laden der Seite
 ladeMkkTeamsAusGitHubText();
 
 </script>
