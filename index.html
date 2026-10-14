@@ -3077,36 +3077,38 @@ function pruefeEingabenFürWeiter() {
 // GLOBALER MKK-MANNSCHAFTSSPEICHER
 let MKK_TEAM_SPEICHER = {};
 
-// Lädt die Datei direkt aus demselben Ordner auf deinem GitHub-Server
-// Der angehängte Zeitstempel (?t=...) sorgt dafür, dass Änderungen SOFORT aktiv werden
-const SPIELER_DATEI_URL = "spieler.txt?t=" + new Date().getTime();
+// Direkter Abruf ohne Domain-Angabe (verhindert CORS-Fehler auf GitHub Pages)
+const SPIELER_DATEI_URL = "spieler.txt?v=" + Math.random();
 
 function ladeMkkTeamsAusGitHubText() {
-  console.log("MKK-System: Lade lokale Spielerliste...");
+  console.log("MKK-System: Starte lokalen Datenabruf...");
   
   fetch(SPIELER_DATEI_URL)
     .then(response => {
-      if (!response.ok) throw new Error("Datei spieler.txt wurde im Ordner nicht gefunden (Status: " + response.status + ")");
+      if (!response.ok) throw new Error("spieler.txt konnte nicht geladen werden (Status: " + response.status + ")");
       return response.text();
     })
     .then(textDaten => {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      // Teilt den Text in einzelne Zeilen auf
-      const zeilen = textDaten.split("\n");
+      // Teilt den Text in einzelne Zeilen
+      const zeilen = textDaten.split(\(/\r\)?\n/);
       
       zeilen.forEach(zeile => {
         if (!zeile || zeile.trim() === "") return;
         
         const spalten = zeile.split(",");
-        // Sicherheitsprüfung: Eine Zeile muss mindestens Team, Nachname und Vorname enthalten
+        // Sicherheitsprüfung: Mindestens Teamname, Nachname und Vorname müssen da sein
         if (spalten.length < 3) return;
         
-        let teamName = spalten[0].trim();
-        // Baut "Nachname, Vorname" sauber zusammen und entfernt Anführungszeichen falls vorhanden
+        let teamName = spalten[0].replace(/["']/g, "").trim();
         let nachname = spalten[1].replace(/["']/g, "").trim();
         let vorname = spalten[2].replace(/["']/g, "").trim();
+        
+        // Holt die Passnummer aus der 4. Spalte (falls vorhanden), ansonsten leer lassen
+        let passNummer = (spalten[3] !== undefined) ? spalten[3].trim() : "";
+        
         let spielerName = nachname + ", " + vorname;
         
         if (teamName !== "" && spielerName !== ", ") {
@@ -3115,10 +3117,13 @@ function ladeMkkTeamsAusGitHubText() {
           if (!MKK_TEAM_SPEICHER[teamName]) {
             MKK_TEAM_SPEICHER[teamName] = {
               kapitaen: spielerName, // Der erste Spieler in der Liste wird Kapitän
-              spieler: []
+              spieler: [],
+              passnummern: {} // Hier speichern wir die Nummern unsichtbar für später
             };
           }
           MKK_TEAM_SPEICHER[teamName].spieler.push(spielerName);
+          // Ordnet dem Spielernamen seine Passnummer zu
+          MKK_TEAM_SPEICHER[teamName].passnummern[spielerName] = passNummer;
         }
       });
       
@@ -3192,7 +3197,6 @@ function alleNamenLeeren() {
   window.location.reload();
 }
 
-// Startet den Abruf lokal beim Laden der Seite
 ladeMkkTeamsAusGitHubText();
 
 </script>
