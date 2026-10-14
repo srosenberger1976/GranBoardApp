@@ -257,21 +257,25 @@ body {
 
 
 
-<!-- STUFE 1: SPIELER-EINGABE -->
-<div id="spielerEingabeBereich" style="display: block;">
- <h2 style="font-size:15px; margin-bottom:10px;"> MKK 👥 Liga-Setup: Spieler eingeben</h2>
+ <!-- STUFE 1: SPIELER-EINGABE -->
+ <div id="spielerEingabeBereich" style="display: block;">
+ <h2 style="font-size:15px; margin-bottom:10px;"> MKK 👥
+Liga-Setup: Spieler eingeben</h2>
  
- <!-- EINGABE FÜR MANNSCHAFTSNAMEN & KAPITÄNE -->
+ <!-- EINGABE FÜR MANNSCHAFTSNAMEN & KAPITÄNE (OPTIMIERT MIT DROPDOWNS) -->
  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
  <div>
  <label style="font-weight: bold; color: #00d2ff; font-size: 13px;">Name Heimteam:</label>
  <div id="container_HeimName" style="width: 100%;">
   <select id="input_HeimName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Heim')">
-   <option value="">Lade Teams von GitHub...</option>
+   <option value="">-- Team wählen --</option>
    <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
+   <option value="Team MKK Alpha">Team MKK Alpha</option>
+   <option value="Team MKK Beta">Team MKK Beta</option>
   </select>
  </div>
  
+ <!-- Kapitänsfeld Heim -->
  <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Heimteam:</label>
  <div id="container_HeimKapitaen" style="width: 100%;">
   <select id="input_HeimKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
@@ -279,16 +283,18 @@ body {
   </select>
  </div>
  </div>
-
  <div>
  <label style="font-weight: bold; color: #ff0055; font-size: 13px;">Name Gastteam:</label>
  <div id="container_GastName" style="width: 100%;">
   <select id="input_GastName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Gast')">
-   <option value="">Lade Teams von GitHub...</option>
+   <option value="">-- Team wählen --</option>
    <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
+   <option value="Team MKK Alpha">Team MKK Alpha</option>
+   <option value="Team MKK Beta">Team MKK Beta</option>
   </select>
  </div>
  
+ <!-- Kapitänsfeld Gast -->
  <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Gastteam:</label>
  <div id="container_GastKapitaen" style="width: 100%;">
   <select id="input_GastKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
@@ -297,33 +303,32 @@ body {
  </div>
  </div>
  </div>
-
- <!-- SPIELER-SLOTS (INITIAL LEER) -->
+ <!-- SPIELER-SLOTS -->
  <div class="setup-grid">
  <div>
-  <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Heimteam</h3>
-  <div class="input-group"><label>H1:</label><div id="container_H1" style="width:100%;"><select id="input_H1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>H2:</label><div id="container_H2" style="width:100%;"><select id="input_H2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>H3:</label><div id="container_H3" style="width:100%;"><select id="input_H3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>H4:</label><div id="container_H4" style="width:100%;"><select id="input_H4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>HE1:</label><div id="container_HE1" style="width:100%;"><select id="input_HE1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
-  <div class="input-group"><label>HE2:</label><div id="container_HE2" style="width:100%;"><select id="input_HE2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
-  <div class="input-group"><label>HE3:</label><div id="container_HE3" style="width:100%;"><select id="input_HE3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
-  <div class="input-group"><label>HE4:</label><div id="container_HE4" style="width:100%;"><select id="input_HE4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Heimteam</h3>
+ <div class="input-group"><label>H1:</label><div id="container_H1" style="width:100%;"><select id="input_H1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>H2:</label><div id="container_H2" style="width:100%;"><select id="input_H2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>H3:</label><div id="container_H3" style="width:100%;"><select id="input_H3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>H4:</label><div id="container_H4" style="width:100%;"><select id="input_H4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>HE1:</label><div id="container_HE1" style="width:100%;"><select id="input_HE1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>HE2:</label><div id="container_HE2" style="width:100%;"><select id="input_HE2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>HE3:</label><div id="container_HE3" style="width:100%;"><select id="input_HE3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>HE4:</label><div id="container_HE4" style="width:100%;"><select id="input_HE4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
  </div>
  <div>
-  <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Gastteam</h3>
-  <div class="input-group"><label>G1:</label><div id="container_G1" style="width:100%;"><select id="input_G1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>G2:</label><div id="container_G2" style="width:100%;"><select id="input_G2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>G3:</label><div id="container_G3" style="width:100%;"><select id="input_G3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>G4:</label><div id="container_G4" style="width:100%;"><select id="input_G4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
-  <div class="input-group"><label>GE1:</label><div id="container_GE1" style="width:100%;"><select id="input_GE1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
-  <div class="input-group"><label>GE2:</label><div id="container_GE2" style="width:100%;"><select id="input_GE2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
-  <div class="input-group"><label>GE3:</label><div id="container_GE3" style="width:100%;"><select id="input_GE3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
-  <div class="input-group"><label>GE4:</label><div id="container_GE4" style="width:100%;"><select id="input_GE4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <h3 style="color:#ffc107; font-size:13px; margin:4px 0;">Gastteam</h3>
+ <div class="input-group"><label>G1:</label><div id="container_G1" style="width:100%;"><select id="input_G1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>G2:</label><div id="container_G2" style="width:100%;"><select id="input_G2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>G3:</label><div id="container_G3" style="width:100%;"><select id="input_G3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>G4:</label><div id="container_G4" style="width:100%;"><select id="input_G4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Spieler wählen --</option></select></div></div>
+ <div class="input-group"><label>GE1:</label><div id="container_GE1" style="width:100%;"><select id="input_GE1" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>GE2:</label><div id="container_GE2" style="width:100%;"><select id="input_GE2" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>GE3:</label><div id="container_GE3" style="width:100%;"><select id="input_GE3" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
+ <div class="input-group"><label>GE4:</label><div id="container_GE4" style="width:100%;"><select id="input_GE4" style="width:100%; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;"><option value="">-- Ersatz wählen --</option></select></div></div>
  </div>
  </div>
-
+ <!-- Roter Button zum Leeren aller Felder -->
 
 
 
