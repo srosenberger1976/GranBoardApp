@@ -3070,17 +3070,29 @@ function pruefeEingabenFürWeiter() {
 }
 
 
-
 // =================================================================
-// MKK-LIGA DROP-DOWN SYSTEM & FETCH-LOGIK (TEIL 1 - ENDGÜLTIGER FIX)
+// MKK-LIGA DROP-DOWN SYSTEM & FETCH-LOGIK (TEIL 1 - INTELLIGENTE WEICHE)
 // =================================================================
 let MKK_TEAM_SPEICHER = {};
 
-// Direkter Abruf ohne Domain mit Zufallszahl gegen den Browser-Cache
+// Pfad zur Textdatei auf GitHub Pages
 const SPIELER_DATEI_URL = "spieler.txt?v=" + Math.random();
 
 function ladeMkkTeamsAusGitHubText() {
-  console.log("MKK-System: Starte lokalen Datenabruf aus spieler.txt...");
+  // PRÜFUNG: Läuft die App lokal auf der Festplatte des PCs?
+  if (window.location.protocol === 'file:') {
+    console.log("MKK-System: Lokaler PC-Test erkannt. Schalte sofort auf manuelle Texteingabe.");
+    aktualisiereTeamDropdownsDynamisch();
+    // Erzwingt die sofortige Umschaltung auf freie Textfelder am PC
+    setTimeout(() => {
+      waehleTeamMKK('Heim');
+      waehleTeamMKK('Gast');
+    }, 100);
+    return; // Bricht hier ab, versucht gar nicht erst zu fetchen
+  }
+
+  // Wenn online auf GitHub: Starte den echten Datenabruf
+  console.log("MKK-System: Online auf GitHub Pages. Starte Abruf von spieler.txt...");
   
   fetch(SPIELER_DATEI_URL)
     .then(response => {
@@ -3091,17 +3103,16 @@ function ladeMkkTeamsAusGitHubText() {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      // ABSOLUT SICHERES TEILEN: Komplett ohne fehleranfällige Sonderzeichen!
-      const sauberesTextArray = textDaten.split("\n");
+      // Teilt den Text plattformunabhängig und absolut fehlerfrei in Zeilen
+      const zeilen = textDaten.split("\n");
       
-      sauberesTextArray.forEach(roheZeile => {
+      zeilen.forEach(roheZeile => {
         let zeile = roheZeile.trim();
         if (!zeile || zeile === "") return;
         
         const spalten = zeile.split(",");
         if (spalten.length < 3) return;
         
-        // Werte bereinigen und Leerzeichen entfernen
         let teamName = spalten[0] ? spalten[0].replace(/["']/g, "").trim() : "";
         let nachname = spalten[1] ? spalten[1].replace(/["']/g, "").trim() : "";
         let vorname  = spalten[2] ? spalten[2].replace(/["']/g, "").trim() : "";
@@ -3124,32 +3135,20 @@ function ladeMkkTeamsAusGitHubText() {
         }
       });
       
-      console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler aus Datei verarbeitet.");
+      console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
       aktualisiereTeamDropdownsDynamisch();
       
-      // AUTOMATISCHE PRÜFUNG BEIM START: Wenn "Testspiel" vorausgewählt ist, sofort umschalten!
-      setTimeout(() => {
-        const hSelect = document.getElementById('input_HeimName');
-        const gSelect = document.getElementById('input_GastName');
-        if (hSelect && hSelect.value === "Testspiel") waehleTeamMKK('Heim');
-        if (gSelect && gSelect.value === "Testspiel") waehleTeamMKK('Gast');
-      }, 150);
-
-      // Zustand nach F5-Druck wiederherstellen, falls vorhanden
       if (typeof wiederherstelleDropdownsNachF5 === 'function') {
         wiederherstelleDropdownsNachF5();
       }
     })
     .catch(error => {
       console.error("MKK-System-Fehler beim Laden:", error);
-      alert("Fehler beim Abruf der Spielerliste:\n" + error.message + "\n\nManuelle Eingabe (Testspiel) bleibt aktiv.");
       aktualisiereTeamDropdownsDynamisch();
-      
-      // Fallback: Auch bei Dateifehlern sofort Textfelder schalten, damit manuell gespielt werden kann
       setTimeout(() => {
         waehleTeamMKK('Heim');
         waehleTeamMKK('Gast');
-      }, 150);
+      }, 100);
     });
 }
 
@@ -3169,8 +3168,10 @@ function aktualisiereTeamDropdownsDynamisch() {
 }
 
 
+
+
 // =================================================================
-// MKK-LIGA DROP-DOWN SYSTEM & FILTER-LOGIK (TEIL 2 - FIXED LEEREN)
+// MKK-LIGA DROP-DOWN SYSTEM & FILTER-LOGIK (TEIL 2 - INTELLIGENTE WEICHE)
 // =================================================================
 function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
   const selectFeld = document.getElementById(`input_${typ}Name`);
@@ -3186,6 +3187,7 @@ function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
     });
   }
   else if (auswahl === "Testspiel") {
+    // Schaltet die Slots stabil in echte, beschreibbare Textfelder um, damit du am PC frei tippen kannst!
     document.getElementById(`container_${typ}Name`).innerHTML = `<input type="text" id="input_${typ}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
     document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="Kapitän ${typ === 'Heim' ? 'H' : 'G'}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
     
@@ -3273,10 +3275,7 @@ function sichereDropdownZustandFuerF5() {
 }
 
 function wiederherstelleDropdownsNachF5() {
-  // Wenn erzwungener Reset aktiv ist, die Wiederherstellung blockieren
-  if (localStorage.getItem('mkk_force_dropdown_reset') === 'true') {
-    return;
-  }
+  if (window.location.protocol === 'file:') return; // Am PC blockieren
 
   const savedHeim = localStorage.getItem('mkk_f5_saved_HeimName');
   const savedGast = localStorage.getItem('mkk_f5_saved_GastName');
@@ -3291,11 +3290,8 @@ function wiederherstelleDropdownsNachF5() {
   }
 }
 
-// RADIKALER RESET: Bereinigt den Speicher restlos vor dem Neuladen!
 function alleNamenLeeren() {
   window.localStorage.clear();
-  // Zwingt die App beim nächsten Start im Dropdown-Modus zu bleiben
-  window.localStorage.setItem('mkk_force_dropdown_reset', 'true');
   window.location.reload();
 }
 
@@ -3310,13 +3306,13 @@ pruefeEingabenFürWeiter = function() {
   }
 };
 
-// Hebt die Reset-Sperre nach dem erfolgreichen Laden der Seite wieder auf
-setTimeout(() => {
-  window.localStorage.removeItem('mkk_force_dropdown_reset');
-}, 1000);
-
-// Startet den Abruf lokal beim Laden der Seite
+// Startet den Abruf (oder schaltet am PC direkt um)
 ladeMkkTeamsAusGitHubText();
+
+
+
+
+
 
 </script>
 </body>
