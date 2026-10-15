@@ -1390,65 +1390,92 @@ function updateMultiScoreGrid(spiel) {
   }
 
 
-
   // =================================================================
-  // REPARIERTE WURFANZEIGE (TEIL 2 - SEITENZUIDE-FIX & 3. WURF)
+  // REPARIERTE LIVE-PFEILANZEIGE (TEIL 2 - SYNCHRON-FIX)
   // =================================================================
   var linksBox = document.getElementById('mkk_wuerfe_links');
   var rechtsBox = document.getElementById('mkk_wuerfe_rechts');
   
   if (linksBox && rechtsBox) {
-    // Standard-Inhalt voreinstellen
-    linksBox.innerHTML = '<div>• Wurf 1: -</div><div>• Wurf 2: -</div><div>• Wurf 3: -</div>';
-    rechtsBox.innerHTML = '<div>- :Wurf 1 •</div><div>- :Wurf 2 •</div><div>- :Wurf 3 •</div>';
-    
-    // Ermittelt das KÜRZEL des Werfers (z.B. "H1", "G2") statt des langen Namens
+    // Ermittelt das echte Kürzel des Werfers (z.B. "H1", "G2")
     var aktuellerWerferKuerzel = spiel.reihenfolge[activePlayerIdx] || "";
     var istHeimSpieler = aktuellerWerferKuerzel.startsWith("H");
     
-    // Greift direkt auf die echten Live-Pfeile im Array der laufenden App zu
-    var aktuelleWurfliste = (window.currentTurnDarts && window.currentTurnDarts.length > 0) ? window.currentTurnDarts : [];
+    // Wir holen uns die letzten 3 echten Würfe direkt aus der Live-Historie der App
+    var liveWuerfeAusProtokoll = [];
+    const protokollBox = document.getElementById('history');
     
-    // Wenn durch F5 alte Punkte geladen werden müssen
-    var geladeneEchtePunkte = [];
+    if (protokollBox) {
+      // Holt alle registrierten Treffer aus dem Live-Protokoll-Tab
+      const alleEintraege = protokollBox.innerText.split("\n");
+      const filterKuerzel = "[" + aktuellerWerferKuerzel + "]";
+      
+      // Filtert die Würfe heraus, die exakt zu der aktuellen Aufnahme des Spielers gehören
+      for (let i = alleEintraege.length - 1; i >= 0; i--) {
+        let eintrag = alleEintraege[i].trim();
+        if (eintrag.startsWith(filterKuerzel)) {
+          // Extrahiert den reinen Wert (z.B. "Single 19" oder "Triple 20")
+          let wert = eintrag.replace(filterKuerzel, "").trim();
+          liveWuerfeAusProtokoll.unshift(wert);
+        }
+        // Sobald wir 3 Würfe für diese Aufnahme haben, hören wir auf
+        if (liveWuerfeAusProtokoll.length >= 3) break;
+      }
+    }
+
+    // Wenn durch F5-Rettung Werte geladen werden müssen
+    let f5Punkte = [];
     try {
-      var gespeichertePunkte = localStorage.getItem('mkk_f5_echte_punkte');
-      if (gespeichertePunkte) geladeneEchtePunkte = JSON.parse(gespeichertePunkte);
+      let gesichert = localStorage.getItem('mkk_f5_echte_punkte');
+      if (gesichert) f5Punkte = JSON.parse(gesichert);
     } catch(e) {}
-    if (geladeneEchtePunkte.length > 0) {
-      aktuelleWurfliste = geladeneEchtePunkte;
+
+    // Belegung der 3 Anzeigen anhand der ermittelten Live-Daten
+    var w1 = "-", w2 = "-", w3 = "-";
+    
+    if (f5Punkte.length > 0) {
+      w1 = f5Punkte[0] !== undefined ? f5Punkte[0] : "-";
+      w2 = f5Punkte[1] !== undefined ? f5Punkte[1] : "-";
+      w3 = f5Punkte[2] !== undefined ? f5Punkte[2] : "-";
+    } else {
+      // Wenn der Zähler aktuell läuft, weisen wir die Daten der Reihe nach zu
+      if (typeof dartCount !== 'undefined') {
+        if (dartCount >= 1 && liveWuerfeAusProtokoll[0]) w1 = liveWuerfeAusProtokoll[0];
+        if (dartCount >= 2 && liveWuerfeAusProtokoll[1]) w2 = liveWuerfeAusProtokoll[1];
+        if (dartCount >= 3 && liveWuerfeAusProtokoll[2]) w3 = liveWuerfeAusProtokoll[2];
+        
+        // SICHERHEITS-SCHLEIFE FÜR DEN 3. WURF BEIM POPUP:
+        // Wenn der Zähler durch den automatischen Bluetooth-Wechsel schon wieder auf 0 gesprungen ist,
+        // lesen wir den letzten Wurf aus der Historie, damit er auf dem Bildschirm nicht verschwindet!
+        if (dartCount === 0 && liveWuerfeAusProtokoll.length > 0) {
+          w1 = liveWuerfeAusProtokoll[0] || "-";
+          w2 = liveWuerfeAusProtokoll[1] || "-";
+          w3 = liveWuerfeAusProtokoll[2] || "-";
+        }
+      }
     }
-    
-    // Werte der 3 Darts auslesen
-    var w1 = (aktuelleWurfliste.length > 0 && aktuelleWurfliste[0] !== undefined) ? aktuelleWurfliste[0] : "-";
-    var w2 = (aktuelleWurfliste.length > 1 && aktuelleWurfliste[1] !== undefined) ? aktuelleWurfliste[1] : "-";
-    var w3 = (aktuelleWurfliste.length > 2 && aktuelleWurfliste[2] !== undefined) ? aktuelleWurfliste[2] : "-";
-    
-    // Falls der Zähler der App noch auf 0 steht, striche anzeigen
-    if (typeof dartCount !== 'undefined') {
-      if (dartCount < 1 && geladeneEchtePunkte.length === 0) w1 = "-";
-      if (dartCount < 2 && geladeneEchtePunkte.length === 0) w2 = "-";
-      if (dartCount < 3 && geladeneEchtePunkte.length === 0) w3 = "-";
-    }
-    
-    // ZUORDNUNG: Heimspieler-Würfe immer links, Gastspieler-Würfe immer rechts!
+
+    // Bereinigt die Anzeige von Texten, falls Zahlen erwartet werden (z.B. "Single 19" -> "19")
+    if (w1.includes("Single ")) w1 = w1.replace("Single ", "");
+    if (w2.includes("Single ")) w2 = w2.replace("Single ", "");
+    if (w3.includes("Single ")) w3 = w3.replace("Single ", "");
+
+    // ZUORDNUNG: Heim-Aufnahmen immer nach links, Gast-Aufnahmen immer nach rechts!
     if (istHeimSpieler) {
       linksBox.innerHTML = '<div>• Wurf 1: <span style="color:#fff">' + w1 + '</span></div>' +
                            '<div>• Wurf 2: <span style="color:#fff">' + w2 + '</span></div>' +
                            '<div>• Wurf 3: <span style="color:#fff">' + w3 + '</span></div>';
       linksBox.style.visibility = 'visible';
-      rechtsBox.style.visibility = 'hidden'; 
+      rechtsBox.style.visibility = 'hidden';
     } else {
       rechtsBox.innerHTML = '<div><span style="color:#fff">' + w1 + '</span> :Wurf 1 •</div>' +
                             '<div><span style="color:#fff">' + w2 + '</span> :Wurf 2 •</div>' +
                             '<div><span style="color:#fff">' + w3 + '</span> :Wurf 3 •</div>';
       rechtsBox.style.visibility = 'visible';
-      linksBox.style.visibility = 'hidden'; 
+      linksBox.style.visibility = 'hidden';
     }
   }
 }
-
-
 
 
 
