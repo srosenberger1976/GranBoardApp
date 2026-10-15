@@ -249,42 +249,55 @@ body {
  <div id="spielerEingabeBereich" style="display: block;">
  <h2 style="font-size:15px; margin-bottom:10px;"> MKK 👥 Liga-Setup: Spieler eingeben</h2>
  
- <!-- EINGABE FÜR MANNSCHAFTSNAMEN & KAPITÄNE -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- EINGABE FÜR MANNSCHAFTSNAMEN & KAPITÄNE (BEREINIGT) -->
  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
  <div>
  <label style="font-weight: bold; color: #00d2ff; font-size: 13px;">Name Heimteam:</label>
  <div id="container_HeimName" style="width: 100%;">
-  <select id="input_HeimName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Heim')">
-   <option value="">Lade Teams von GitHub...</option>
-   <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
-  </select>
+ <select id="input_HeimName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Heim')">
+ <option value="">Lade Teams von GitHub...</option>
+ <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
+ </select>
  </div>
- 
+ <!-- Kapitänsfeld Heim -->
  <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Heimteam:</label>
  <div id="container_HeimKapitaen" style="width: 100%;">
-  <select id="input_HeimKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
-   <option value="">-- Kein Team gewählt --</option>
-  </select>
+ <select id="input_HeimKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
+ <option value="">-- Kein Team gewählt --</option>
+ </select>
  </div>
  </div>
-
  <div>
  <label style="font-weight: bold; color: #ff0055; font-size: 13px;">Name Gastteam:</label>
  <div id="container_GastName" style="width: 100%;">
-  <select id="input_GastName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Gast')">
-   <option value="">Lade Teams von GitHub...</option>
-   <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
-  </select>
+ <select id="input_GastName" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;" onchange="waehleTeamMKK('Gast')">
+ <option value="">Lade Teams von GitHub...</option>
+ <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>
+ </select>
  </div>
- 
+ <!-- Kapitänsfeld Gast -->
  <label style="font-weight: bold; color: #ffc107; font-size: 11px; margin-top: 8px; display: block;">Kapitän Gastteam:</label>
  <div id="container_GastKapitaen" style="width: 100%;">
-  <select id="input_GastKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
-   <option value="">-- Kein Team gewählt --</option>
-  </select>
+ <select id="input_GastKapitaen" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #fff !important; padding: 6px; border: 1px solid #555 !important; border-radius: 4px;">
+ <option value="">-- Kein Team gewählt --</option>
+ </select>
  </div>
  </div>
  </div>
+
 
  <!-- SPIELER-SLOTS (AB START COMPAKT UND LEER) -->
  <div class="setup-grid">
