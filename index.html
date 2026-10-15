@@ -78,6 +78,24 @@ body {
     background: #333333 !important; /* Das Innere der Tabs ist jetzt ein angenehmes, helleres Anthrazit */
 }
 
+
+
+
+/* Blendet die linke und rechte Wurf-Box im Spielbetrieb unsichtbar aus */
+#mkk_wuerfe_links, 
+#mkk_wuerfe_rechts {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0px !important;
+}
+
+
+
+
+
+
+
 .tab-content.active { 
     display: flex; 
 }
@@ -1390,93 +1408,31 @@ function updateMultiScoreGrid(spiel) {
   }
 
 
-  // =================================================================
-  // REPARIERTE LIVE-PFEILANZEIGE (TEIL 2 - SYNCHRON-FIX)
+   // =================================================================
+  // ABSOLUT TRENNSCHARFE LEISTEN-ANZEIGE FÜR DIE UP-TO-DATE AUFNAHME
   // =================================================================
   var linksBox = document.getElementById('mkk_wuerfe_links');
   var rechtsBox = document.getElementById('mkk_wuerfe_rechts');
-  
-  if (linksBox && rechtsBox) {
-    // Ermittelt das echte Kürzel des Werfers (z.B. "H1", "G2")
-    var aktuellerWerferKuerzel = spiel.reihenfolge[activePlayerIdx] || "";
-    var istHeimSpieler = aktuellerWerferKuerzel.startsWith("H");
-    
-    // Wir holen uns die letzten 3 echten Würfe direkt aus der Live-Historie der App
-    var liveWuerfeAusProtokoll = [];
-    const protokollBox = document.getElementById('history');
-    
-    if (protokollBox) {
-      // Holt alle registrierten Treffer aus dem Live-Protokoll-Tab
-      const alleEintraege = protokollBox.innerText.split("\n");
-      const filterKuerzel = "[" + aktuellerWerferKuerzel + "]";
-      
-      // Filtert die Würfe heraus, die exakt zu der aktuellen Aufnahme des Spielers gehören
-      for (let i = alleEintraege.length - 1; i >= 0; i--) {
-        let eintrag = alleEintraege[i].trim();
-        if (eintrag.startsWith(filterKuerzel)) {
-          // Extrahiert den reinen Wert (z.B. "Single 19" oder "Triple 20")
-          let wert = eintrag.replace(filterKuerzel, "").trim();
-          liveWuerfeAusProtokoll.unshift(wert);
-        }
-        // Sobald wir 3 Würfe für diese Aufnahme haben, hören wir auf
-        if (liveWuerfeAusProtokoll.length >= 3) break;
-      }
-    }
+  if (linksBox) linksBox.style.display = 'none';
+  if (rechtsBox) rechtsBox.style.display = 'none';
 
-    // Wenn durch F5-Rettung Werte geladen werden müssen
-    let f5Punkte = [];
-    try {
-      let gesichert = localStorage.getItem('mkk_f5_echte_punkte');
-      if (gesichert) f5Punkte = JSON.parse(gesichert);
-    } catch(e) {}
-
-    // Belegung der 3 Anzeigen anhand der ermittelten Live-Daten
-    var w1 = "-", w2 = "-", w3 = "-";
+  let leisteRechts = document.getElementById('wurfAnzeigeRechts');
+  if (leisteRechts && typeof spiel !== 'undefined') {
+    // Holt das Kürzel des Spielers, der JETZT GERADE an der Reihe ist
+    var werferJetzt = spiel.reihenfolge[activePlayerIdx] || "Testspiel";
     
-    if (f5Punkte.length > 0) {
-      w1 = f5Punkte[0] !== undefined ? f5Punkte[0] : "-";
-      w2 = f5Punkte[1] !== undefined ? f5Punkte[1] : "-";
-      w3 = f5Punkte[2] !== undefined ? f5Punkte[2] : "-";
+    if (!window.mkk_spieler_schubladen) window.mkk_spieler_schubladen = {};
+    let meineWuerfe = window.mkk_spieler_schubladen[werferJetzt] || [];
+    
+    if (meineWuerfe.length > 0) {
+      // Zeigt strikt nur die Würfe an, die dieser Spieler in SEINER aktuellen Aufnahme erzielt hat
+      leisteRechts.innerText = meineWuerfe.join(" | ");
     } else {
-      // Wenn der Zähler aktuell läuft, weisen wir die Daten der Reihe nach zu
-      if (typeof dartCount !== 'undefined') {
-        if (dartCount >= 1 && liveWuerfeAusProtokoll[0]) w1 = liveWuerfeAusProtokoll[0];
-        if (dartCount >= 2 && liveWuerfeAusProtokoll[1]) w2 = liveWuerfeAusProtokoll[1];
-        if (dartCount >= 3 && liveWuerfeAusProtokoll[2]) w3 = liveWuerfeAusProtokoll[2];
-        
-        // SICHERHEITS-SCHLEIFE FÜR DEN 3. WURF BEIM POPUP:
-        // Wenn der Zähler durch den automatischen Bluetooth-Wechsel schon wieder auf 0 gesprungen ist,
-        // lesen wir den letzten Wurf aus der Historie, damit er auf dem Bildschirm nicht verschwindet!
-        if (dartCount === 0 && liveWuerfeAusProtokoll.length > 0) {
-          w1 = liveWuerfeAusProtokoll[0] || "-";
-          w2 = liveWuerfeAusProtokoll[1] || "-";
-          w3 = liveWuerfeAusProtokoll[2] || "-";
-        }
-      }
-    }
-
-    // Bereinigt die Anzeige von Texten, falls Zahlen erwartet werden (z.B. "Single 19" -> "19")
-    if (w1.includes("Single ")) w1 = w1.replace("Single ", "");
-    if (w2.includes("Single ")) w2 = w2.replace("Single ", "");
-    if (w3.includes("Single ")) w3 = w3.replace("Single ", "");
-
-    // ZUORDNUNG: Heim-Aufnahmen immer nach links, Gast-Aufnahmen immer nach rechts!
-    if (istHeimSpieler) {
-      linksBox.innerHTML = '<div>• Wurf 1: <span style="color:#fff">' + w1 + '</span></div>' +
-                           '<div>• Wurf 2: <span style="color:#fff">' + w2 + '</span></div>' +
-                           '<div>• Wurf 3: <span style="color:#fff">' + w3 + '</span></div>';
-      linksBox.style.visibility = 'visible';
-      rechtsBox.style.visibility = 'hidden';
-    } else {
-      rechtsBox.innerHTML = '<div><span style="color:#fff">' + w1 + '</span> :Wurf 1 •</div>' +
-                            '<div><span style="color:#fff">' + w2 + '</span> :Wurf 2 •</div>' +
-                            '<div><span style="color:#fff">' + w3 + '</span> :Wurf 3 •</div>';
-      rechtsBox.style.visibility = 'visible';
-      linksBox.style.visibility = 'hidden';
+      // Wenn der neue Spieler noch nicht geworfen hat, steht dort sofort sauber "Bereit..."
+      leisteRechts.innerText = "Bereit...";
     }
   }
 }
-
 
 
 
@@ -2083,32 +2039,59 @@ function playCustomSound(key, defaultFile) {
 
 
 
-
 function spieleLogikAusfuehren(hardwareKey) {
-  let hit = EXACT_BOARD_MATRIX[hardwareKey]; 
+  let hit = EXACT_BOARD_MATRIX[hardwareKey];
   if (!hit) { hit = { v: 0, m: 1, t: "Fehlwurf" }; } //
+
+  // =================================================================
+  // SPEZIFISCHER LOKALER WURF-SAMMLER NACH SPIELER-KÜRZEL (FIX)
+  // =================================================================
+  if (!window.mkk_spieler_schubladen) window.mkk_spieler_schubladen = {};
   
-  if (typeof isPullingDarts !== 'undefined' && isPullingDarts) { 
-    confirmDartAndResetLed(); 
-    return; 
+  // Ermittelt das präzise Kürzel des aktuellen Werfers (z.B. "H1" oder "G4")
+  var aktuellesWerferKuerzel = "Testspiel";
+  if (typeof ligaSpiele !== 'undefined' && ligaSpiele[currentMatchIndex]) {
+    var aktuellesMatch = ligaSpiele[currentMatchIndex];
+    if (aktuellesMatch.reihenfolge && typeof activePlayerIdx !== 'undefined') {
+      aktuellesWerferKuerzel = aktuellesMatch.reihenfolge[activePlayerIdx] || "Testspiel";
+    }
+  }
+
+  // Wenn eine neue Aufnahme für diesen spezifischen Spieler startet, Schublade leeren
+  if (typeof dartCount !== 'undefined' && dartCount === 0) {
+    window.mkk_spieler_schubladen[aktuellesWerferKuerzel] = [];
+  }
+  if (!window.mkk_spieler_schubladen[aktuellesWerferKuerzel]) {
+    window.mkk_spieler_schubladen[aktuellesWerferKuerzel] = [];
+  }
+
+  if (hit && window.mkk_spieler_schubladen[aktuellesWerferKuerzel].length < 3) {
+    let mkk_wert_kurz = hit.v;
+    if (hit.t === "Double") mkk_wert_kurz = "D" + hit.v;
+    if (hit.t === "Triple") mkk_wert_kurz = "T" + hit.v;
+    if (hit.t === "Fehlwurf" || hit.v === 0) mkk_wert_kurz = "0";
+    if (hit.v === 25 && hit.t === "Double Bull") mkk_wert_kurz = "BULL";
+    
+    // Schiebt den Wurf exakt in die Schublade des aktuellen Spielers
+    window.mkk_spieler_schubladen[aktuellesWerferKuerzel].push(mkk_wert_kurz);
+    
+    // Live-Anzeige unten rechts aktualisieren
+    let leisteRechts = document.getElementById('wurfAnzeigeRechts');
+    if (leisteRechts) {
+      leisteRechts.innerText = window.mkk_spieler_schubladen[aktuellesWerferKuerzel].join(" | ");
+    }
+  }
+  // =================================================================
+
+  if (typeof isPullingDarts !== 'undefined' && isPullingDarts) {
+    confirmDartAndResetLed();
+    return;
   } //
 
-  // ─── 🎯 NEU: DYNAMISCHE AUDIO-WIEDERGABE AUS DEN SETUP-EINGABEN ───
+
+
+  // ─── 🎯 NEU: DYNAMISCHE AUDIO-WIEDERGABE AUS DEN SETUP-EINGABEN
   let gewaehlteDatei = "";
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
