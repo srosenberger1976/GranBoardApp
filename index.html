@@ -3071,42 +3071,42 @@ function pruefeEingabenFürWeiter() {
 
 
 // =================================================================
-// MKK-LIGA DROP-DOWN SYSTEM & FETCH-LOGIK (TEIL 1 - INTELLIGENTE WEICHE)
+// MKK-LIGA DROP-DOWN SYSTEM & FETCH-LOGIK (TEIL 1 - PFAD-FIX)
 // =================================================================
 let MKK_TEAM_SPEICHER = {};
 
-// Pfad zur Textdatei auf GitHub Pages
-const SPIELER_DATEI_URL = "spieler.txt?v=" + Math.random();
+// FIX: Holt sich dynamisch den Pfad des aktuellen Ordners auf GitHub Pages!
+const AKTUELLER_PFAD = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+const SPIELER_DATEI_URL = window.location.origin + AKTUELLER_PFAD + "spieler.txt?v=" + Math.random();
 
 function ladeMkkTeamsAusGitHubText() {
-  // PRÜFUNG: Läuft die App lokal auf der Festplatte des PCs?
+  // Wenn lokal auf der Festplatte des PCs getestet wird
   if (window.location.protocol === 'file:') {
-    console.log("MKK-System: Lokaler PC-Test erkannt. Schalte sofort auf manuelle Texteingabe.");
+    console.log("MKK-System: Lokaler PC-Test. Schalte direkt auf Textfelder.");
     aktualisiereTeamDropdownsDynamisch();
-    // Erzwingt die sofortige Umschaltung auf freie Textfelder am PC
     setTimeout(() => {
       waehleTeamMKK('Heim');
       waehleTeamMKK('Gast');
     }, 100);
-    return; // Bricht hier ab, versucht gar nicht erst zu fetchen
+    return;
   }
 
-  // Wenn online auf GitHub: Starte den echten Datenabruf
-  console.log("MKK-System: Online auf GitHub Pages. Starte Abruf von spieler.txt...");
+  // Wenn online auf GitHub Pages
+  console.log("MKK-System: Online. Suche Datei unter: " + SPIELER_DATEI_URL);
   
   fetch(SPIELER_DATEI_URL)
     .then(response => {
-      if (!response.ok) throw new Error("spieler.txt konnte nicht geladen werden (Status: " + response.status + ")");
+      if (!response.ok) throw new Error("spieler.txt im Unterordner nicht gefunden (Status: " + response.status + ")");
       return response.text();
     })
     .then(textDaten => {
       MKK_TEAM_SPEICHER = {};
       let geladeneSpielerAnzahl = 0;
       
-      // Teilt den Text plattformunabhängig und absolut fehlerfrei in Zeilen
-      const zeilen = textDaten.split("\n");
+      // Teilt den Text absolut sicher und ohne Backslashes auf
+      const sauberesTextArray = textDaten.split("\n");
       
-      zeilen.forEach(roheZeile => {
+      sauberesTextArray.forEach(roheZeile => {
         let zeile = roheZeile.trim();
         if (!zeile || zeile === "") return;
         
@@ -3135,15 +3135,24 @@ function ladeMkkTeamsAusGitHubText() {
         }
       });
       
-      console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler geladen.");
-      aktualisiereTeamDropdownsDynamisch();
+      console.log("MKK-System: Erfolgreich " + geladeneSpielerAnzahl + " Spieler aus Unterordner geladen.");
       
-      if (typeof wiederherstelleDropdownsNachF5 === 'function') {
-        wiederherstelleDropdownsNachF5();
+      // WICHTIG: Wenn F5 gedrückt wurde UND ein echtes Team gespeichert war, wiederherstellen
+      const savedHeim = localStorage.getItem('mkk_f5_saved_HeimName');
+      const savedGast = localStorage.getItem('mkk_f5_saved_GastName');
+      
+      if ((savedHeim && savedHeim !== "Testspiel") || (savedGast && savedGast !== "Testspiel")) {
+        aktualisiereTeamDropdownsDynamisch();
+        if (typeof wiederherstelleDropdownsNachF5 === 'function') {
+          wiederherstelleDropdownsNachF5();
+        }
+      } else {
+        // Wenn kein Team oder nur ein Testspiel aktiv war, lade die Dropdowns völlig leer und frisch!
+        aktualisiereTeamDropdownsDynamischBlank();
       }
     })
     .catch(error => {
-      console.error("MKK-System-Fehler beim Laden:", error);
+      console.error("MKK-System-Fehler:", error);
       aktualisiereTeamDropdownsDynamisch();
       setTimeout(() => {
         waehleTeamMKK('Heim');
@@ -3154,24 +3163,31 @@ function ladeMkkTeamsAusGitHubText() {
 
 function aktualisiereTeamDropdownsDynamisch() {
   let anzeigeOptionen = `<option value="">-- Team wählen --</option>
-                         <option value="Testspiel" selected>Testspiel (Manuelle Eingabe)</option>`;
-                         
+                         <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>`;
   Object.keys(MKK_TEAM_SPEICHER).sort().forEach(team => {
     anzeigeOptionen += `<option value="${team}">${team}</option>`;
   });
-                           
   const heimSelect = document.getElementById('input_HeimName');
   const gastSelect = document.getElementById('input_GastName');
-  
+  if(heimSelect) heimSelect.innerHTML = anzeigeOptionen;
+  if(gastSelect) gastSelect.innerHTML = anzeigeOptionen;
+}
+
+function aktualisiereTeamDropdownsDynamischBlank() {
+  let anzeigeOptionen = `<option value="" selected>-- Team wählen --</option>
+                         <option value="Testspiel">Testspiel (Manuelle Eingabe)</option>`;
+  Object.keys(MKK_TEAM_SPEICHER).sort().forEach(team => {
+    anzeigeOptionen += `<option value="${team}">${team}</option>`;
+  });
+  const heimSelect = document.getElementById('input_HeimName');
+  const gastSelect = document.getElementById('input_GastName');
   if(heimSelect) heimSelect.innerHTML = anzeigeOptionen;
   if(gastSelect) gastSelect.innerHTML = anzeigeOptionen;
 }
 
 
-
-
 // =================================================================
-// MKK-LIGA DROP-DOWN SYSTEM & FILTER-LOGIK (TEIL 2 - INTELLIGENTE WEICHE)
+// MKK-LIGA DROP-DOWN SYSTEM & FILTER-LOGIK (TEIL 2 - PFAD-FIX)
 // =================================================================
 function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
   const selectFeld = document.getElementById(`input_${typ}Name`);
@@ -3187,7 +3203,6 @@ function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
     });
   }
   else if (auswahl === "Testspiel") {
-    // Schaltet die Slots stabil in echte, beschreibbare Textfelder um, damit du am PC frei tippen kannst!
     document.getElementById(`container_${typ}Name`).innerHTML = `<input type="text" id="input_${typ}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
     document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="Kapitän ${typ === 'Heim' ? 'H' : 'G'}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
     
@@ -3275,7 +3290,7 @@ function sichereDropdownZustandFuerF5() {
 }
 
 function wiederherstelleDropdownsNachF5() {
-  if (window.location.protocol === 'file:') return; // Am PC blockieren
+  if (window.location.protocol === 'file:') return;
 
   const savedHeim = localStorage.getItem('mkk_f5_saved_HeimName');
   const savedGast = localStorage.getItem('mkk_f5_saved_GastName');
@@ -3306,12 +3321,8 @@ pruefeEingabenFürWeiter = function() {
   }
 };
 
-// Startet den Abruf (oder schaltet am PC direkt um)
+// Startet den Abruf lokal beim Laden der Seite
 ladeMkkTeamsAusGitHubText();
-
-
-
-
 
 
 </script>
