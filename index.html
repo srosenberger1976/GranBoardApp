@@ -1313,134 +1313,145 @@ function speichereSpielstand() {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =================================================================
+// REPARIERTE WURFANZEIGE & PROTOKOLLIERUNG (TEIL 1)
+// =================================================================
 function updateMultiScoreGrid(spiel) {
-    var grid = document.getElementById('multiScoreGrid');
-    if (!grid) return;
+  var grid = document.getElementById('multiScoreGrid');
+  if (!grid) return;
+  
+  grid.innerHTML = ""; 
+  var istCricket = (spiel.type !== '501');
+  const teamTotalContainer = document.getElementById('teamTotalContainer');
+  const teamTotalHeim = document.getElementById('teamTotalHeim');
+  const teamTotalGast = document.getElementById('teamTotalGast');
+  const scoreDisp = document.getElementById('scoreDisplay');
+  
+  if (!istCricket) {
+    let summeHeim = 0; 
+    let summeGast = 0;
+    spiel.reihenfolge.forEach(function(k, idx) {
+      var score = livePlayerScores[k] || 0; 
+      var aktivKlasse = (idx === activePlayerIdx) ? ' active' : '';
+      var teamKlasse = k.startsWith("H") ? " team-h" : " team-g";
+      if (k.startsWith("H")) { 
+        summeHeim += score; 
+      } else { 
+        summeGast += score; 
+      }
+      grid.innerHTML += '<div class="player-card' + teamKlasse + aktivKlasse + '"><div class="p-name">' + activePlayerNames[k] + ' (' + k + ')</div><div class="p-score">' + score + '</div></div>';
+    });
     
-    grid.innerHTML = ""; 
-    var istCricket = (spiel.type !== '501');
-    const teamTotalContainer = document.getElementById('teamTotalContainer');
-    const teamTotalHeim = document.getElementById('teamTotalHeim');
-    const teamTotalGast = document.getElementById('teamTotalGast');
-    const scoreDisp = document.getElementById('scoreDisplay');
- 
-    if (!istCricket) {
-        let summeHeim = 0; 
-        let summeGast = 0;
-        spiel.reihenfolge.forEach(function(k, idx) {
-            var score = livePlayerScores[k] || 0; 
-            var aktivKlasse = (idx === activePlayerIdx) ? ' active' : '';
-            var teamKlasse = k.startsWith("H") ? " team-h" : " team-g";
-            if (k.startsWith("H")) { 
-                summeHeim += score; 
-            } else { 
-                summeGast += score; 
-            }
-            grid.innerHTML += '<div class="player-card' + teamKlasse + aktivKlasse + '"><div class="p-name">' + activePlayerNames[k] + ' (' + k + ')</div><div class="p-score">' + score + '</div></div>';
-        });
-        
-        if (spiel.reihenfolge.length === 4 && teamTotalContainer && teamTotalHeim && teamTotalGast) {
-            teamTotalContainer.style.display = 'flex';
-            teamTotalHeim.style.visibility = 'visible';
-            teamTotalGast.style.visibility = 'visible';
-            teamTotalHeim.innerText = "Heim-Team Gesamt: " + summeHeim;
-            teamTotalGast.innerText = "Gast-Team Gesamt: " + summeGast;
-        } else if (teamTotalContainer && teamTotalHeim && teamTotalGast) {
-            teamTotalContainer.style.display = 'flex';
-            teamTotalHeim.style.visibility = 'hidden';
-            teamTotalGast.style.visibility = 'hidden';
-        }
-        
-        if (scoreDisp && (typeof isPullingDarts === 'undefined' || !isPullingDarts)) {
-            scoreDisp.innerText = livePlayerScores[spiel.reihenfolge[activePlayerIdx]] || 501;
-        }
-    } else {
-        if (teamTotalContainer) teamTotalContainer.style.display = 'none';
+    if (spiel.reihenfolge.length === 4 && teamTotalContainer && teamTotalHeim && teamTotalGast) {
+      teamTotalContainer.style.display = 'flex';
+      teamTotalHeim.style.visibility = 'visible';
+      teamTotalGast.style.visibility = 'visible';
+      teamTotalHeim.innerText = "Heim-Team Gesamt: " + summeHeim;
+      teamTotalGast.innerText = "Gast-Team Gesamt: " + summeGast;
+    } else if (teamTotalContainer && teamTotalHeim && teamTotalGast) {
+      teamTotalContainer.style.display = 'flex';
+      teamTotalHeim.style.visibility = 'hidden';
+      teamTotalGast.style.visibility = 'hidden';
     }
     
-    if (scoreDisplay) { 
-        scoreDisplay.style.setProperty('font-size', istCricket ? '8vh' : '18vh'); 
-        scoreDisplay.style.setProperty('margin', istCricket ? '2px 0' : '5px 0'); 
+    if (scoreDisp && (typeof isPullingDarts === 'undefined' || !isPullingDarts)) {
+      scoreDisp.innerText = livePlayerScores[spiel.reihenfolge[activePlayerIdx]] || 501;
     }
+  } else {
+    if (teamTotalContainer) teamTotalContainer.style.display = 'none';
+  }
+  
+  if (scoreDisplay) { 
+    scoreDisplay.style.setProperty('font-size', istCricket ? '8vh' : '18vh'); 
+    scoreDisplay.style.setProperty('margin', istCricket ? '2px 0' : '5px 0'); 
+  }
+  
+  if (typeof dartCount !== 'undefined') {
+    localStorage.setItem('mkk_dartCount', dartCount);
+  }
+  if (typeof activePlayerIdx !== 'undefined' && window.mkk_is_loading !== true) {
+    localStorage.setItem('mkk_activePlayerIdx', activePlayerIdx);
+  }
+  if (typeof speichereSpielstand === 'function' && window.mkk_is_loading !== true) {
+    speichereSpielstand();
+  }
 
-    // Live-Absicherung im Speicher für jeden einzelnen Pfeil & Spielerwechsel
+
+
+  // =================================================================
+  // REPARIERTE WURFANZEIGE (TEIL 2 - SEITENZUIDE-FIX & 3. WURF)
+  // =================================================================
+  var linksBox = document.getElementById('mkk_wuerfe_links');
+  var rechtsBox = document.getElementById('mkk_wuerfe_rechts');
+  
+  if (linksBox && rechtsBox) {
+    // Standard-Inhalt voreinstellen
+    linksBox.innerHTML = '<div>• Wurf 1: -</div><div>• Wurf 2: -</div><div>• Wurf 3: -</div>';
+    rechtsBox.innerHTML = '<div>- :Wurf 1 •</div><div>- :Wurf 2 •</div><div>- :Wurf 3 •</div>';
+    
+    // Ermittelt das KÜRZEL des Werfers (z.B. "H1", "G2") statt des langen Namens
+    var aktuellerWerferKuerzel = spiel.reihenfolge[activePlayerIdx] || "";
+    var istHeimSpieler = aktuellerWerferKuerzel.startsWith("H");
+    
+    // Greift direkt auf die echten Live-Pfeile im Array der laufenden App zu
+    var aktuelleWurfliste = (window.currentTurnDarts && window.currentTurnDarts.length > 0) ? window.currentTurnDarts : [];
+    
+    // Wenn durch F5 alte Punkte geladen werden müssen
+    var geladeneEchtePunkte = [];
+    try {
+      var gespeichertePunkte = localStorage.getItem('mkk_f5_echte_punkte');
+      if (gespeichertePunkte) geladeneEchtePunkte = JSON.parse(gespeichertePunkte);
+    } catch(e) {}
+    if (geladeneEchtePunkte.length > 0) {
+      aktuelleWurfliste = geladeneEchtePunkte;
+    }
+    
+    // Werte der 3 Darts auslesen
+    var w1 = (aktuelleWurfliste.length > 0 && aktuelleWurfliste[0] !== undefined) ? aktuelleWurfliste[0] : "-";
+    var w2 = (aktuelleWurfliste.length > 1 && aktuelleWurfliste[1] !== undefined) ? aktuelleWurfliste[1] : "-";
+    var w3 = (aktuelleWurfliste.length > 2 && aktuelleWurfliste[2] !== undefined) ? aktuelleWurfliste[2] : "-";
+    
+    // Falls der Zähler der App noch auf 0 steht, striche anzeigen
     if (typeof dartCount !== 'undefined') {
-        localStorage.setItem('mkk_dartCount', dartCount);
+      if (dartCount < 1 && geladeneEchtePunkte.length === 0) w1 = "-";
+      if (dartCount < 2 && geladeneEchtePunkte.length === 0) w2 = "-";
+      if (dartCount < 3 && geladeneEchtePunkte.length === 0) w3 = "-";
     }
-    // ====================================================================
-    // SOFORT-VERRIEGELUNG FÜR DEN AKTUELLEN WERFER
-    // ====================================================================
-    if (typeof activePlayerIdx !== 'undefined' && window.mkk_is_loading !== true) {
-        localStorage.setItem('mkk_activePlayerIdx', activePlayerIdx);
-    }
-    if (typeof dartCount !== 'undefined' && window.mkk_is_loading !== true) {
-        localStorage.setItem('mkk_dartCount', dartCount);
-    }
-    if (typeof speichereSpielstand === 'function' && window.mkk_is_loading !== true) {
-        speichereSpielstand();
-
-
-
-
-    }
-    // =================================================================
-    // MKK ABSICHERUNG: Einzelwürfe links oder rechts live anzeigen
-    // =================================================================
-    var linksBox = document.getElementById('mkk_wuerfe_links');
-    var rechtsBox = document.getElementById('mkk_wuerfe_rechts');
     
-    if (linksBox && rechtsBox) {
-        // Standardmäßig alle Würfe zurücksetzen
-        linksBox.innerHTML = '<div>• Wurf 1: -</div><div>• Wurf 2: -</div><div>• Wurf 3: -</div>';
-        rechtsBox.innerHTML = '<div>- :Wurf 1 •</div><div>- :Wurf 2 •</div><div>- :Wurf 3 •</div>';
-        
-        // Welches Team wirft gerade? (Wir prüfen das Kürzel des aktiven Spielers)
-        var aktuellerWerferKuerzel = spiel.reihenfolge[activePlayerIdx] || "";
-        var istHeimSpieler = aktuellerWerferKuerzel.startsWith("H");
-        
-        // Wir holen uns die echten Werte der bisherigen Würfe aus dem Speicher-Array
-        var geladeneEchtePunkte = [];
-        try {
-            var gespeichertePunkte = localStorage.getItem('mkk_f5_echte_punkte');
-            if (gespeichertePunkte) {
-                geladeneEchtePunkte = JSON.parse(gespeichertePunkte);
-            }
-        } catch(e) {}
-        
-        // Verwende das Live-Array aus deiner App
-        var aktuelleWurfliste = (window.currentTurnDarts && window.currentTurnDarts.length > 0) ? window.currentTurnDarts : [];
-        if (geladeneEchtePunkte.length > 0) {
-            aktuelleWurfliste = geladeneEchtePunkte;
-        }
-        
-        var w1 = (aktuelleWurfliste.length > 0 && aktuelleWurfliste[0] !== undefined) ? aktuelleWurfliste[0] : "-";
-        var w2 = (aktuelleWurfliste.length > 1 && aktuelleWurfliste[1] !== undefined) ? aktuelleWurfliste[1] : "-";
-        var w3 = (aktuelleWurfliste.length > 2 && aktuelleWurfliste[2] !== undefined) ? aktuelleWurfliste[2] : "-";
-        
-        // Wenn laut App noch nicht geworfen wurde, zeigen wir ein "-" an
-        if (typeof dartCount !== 'undefined') {
-            if (dartCount < 1 && geladeneEchtePunkte.length === 0) w1 = "-";
-            if (dartCount < 2 && geladeneEchtePunkte.length === 0) w2 = "-";
-            if (dartCount < 3 && geladeneEchtePunkte.length === 0) w3 = "-";
-        }
-
-        // Werte in die richtige Spalte schreiben, je nachdem wer dran ist
-        if (istHeimSpieler) {
-            linksBox.innerHTML = '<div>• Wurf 1: <span style="color:#fff">' + w1 + '</span></div>' +
-                                  '<div>• Wurf 2: <span style="color:#fff">' + w2 + '</span></div>' +
-                                  '<div>• Wurf 3: <span style="color:#fff">' + w3 + '</span></div>';
-            linksBox.style.visibility = 'visible';
-            rechtsBox.style.visibility = 'hidden'; // Blendet Gast aus, wenn Heim wirft
-        } else {
-            rechtsBox.innerHTML = '<div><span style="color:#fff">' + w1 + '</span> :Wurf 1 •</div>' +
-                                   '<div><span style="color:#fff">' + w2 + '</span> :Wurf 2 •</div>' +
-                                   '<div><span style="color:#fff">' + w3 + '</span> :Wurf 3 •</div>';
-            rechtsBox.style.visibility = 'visible';
-            linksBox.style.visibility = 'hidden'; // Blendet Heim aus, wenn Gast wirft
-        }
+    // ZUORDNUNG: Heimspieler-Würfe immer links, Gastspieler-Würfe immer rechts!
+    if (istHeimSpieler) {
+      linksBox.innerHTML = '<div>• Wurf 1: <span style="color:#fff">' + w1 + '</span></div>' +
+                           '<div>• Wurf 2: <span style="color:#fff">' + w2 + '</span></div>' +
+                           '<div>• Wurf 3: <span style="color:#fff">' + w3 + '</span></div>';
+      linksBox.style.visibility = 'visible';
+      rechtsBox.style.visibility = 'hidden'; 
+    } else {
+      rechtsBox.innerHTML = '<div><span style="color:#fff">' + w1 + '</span> :Wurf 1 •</div>' +
+                            '<div><span style="color:#fff">' + w2 + '</span> :Wurf 2 •</div>' +
+                            '<div><span style="color:#fff">' + w3 + '</span> :Wurf 3 •</div>';
+      rechtsBox.style.visibility = 'visible';
+      linksBox.style.visibility = 'hidden'; 
     }
-
+  }
 }
+
+
+
+
+
 
 
 
