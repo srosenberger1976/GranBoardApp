@@ -3170,7 +3170,7 @@ function aktualisiereTeamDropdownsDynamisch() {
 
 
 // =================================================================
-// MKK-LIGA DROP-DOWN SYSTEM & FILTER-LOGIK (TEIL 2 - ENDGÜLTIGER FIX)
+// MKK-LIGA DROP-DOWN SYSTEM & FILTER-LOGIK (TEIL 2 - FIXED LEEREN)
 // =================================================================
 function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
   const selectFeld = document.getElementById(`input_${typ}Name`);
@@ -3186,7 +3186,6 @@ function waehleTeamMKK(typ, vorauswahlGetaetigt = false) {
     });
   }
   else if (auswahl === "Testspiel") {
-    // Schaltet die Slots stabil in echte, beschreibbare Textfelder um, damit du tippen kannst!
     document.getElementById(`container_${typ}Name`).innerHTML = `<input type="text" id="input_${typ}Name" value="Testspiel" style="width: 100%; margin-top: 5px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;" oninput="pruefeEingabenFürWeiter()">`;
     document.getElementById(`container_${typ}Kapitaen`).innerHTML = `<input type="text" id="input_${typ}Kapitaen" value="Kapitän ${typ === 'Heim' ? 'H' : 'G'}" style="width: 100%; margin-top: 3px; box-sizing: border-box; background-color: #2a2a2a !important; color: #ffffff !important; border: 1px solid #555555 !important; padding: 6px !important; border-radius: 4px !important;">`;
     
@@ -3274,21 +3273,29 @@ function sichereDropdownZustandFuerF5() {
 }
 
 function wiederherstelleDropdownsNachF5() {
+  // Wenn erzwungener Reset aktiv ist, die Wiederherstellung blockieren
+  if (localStorage.getItem('mkk_force_dropdown_reset') === 'true') {
+    return;
+  }
+
   const savedHeim = localStorage.getItem('mkk_f5_saved_HeimName');
   const savedGast = localStorage.getItem('mkk_f5_saved_GastName');
   
-  if (savedHeim && document.getElementById('input_HeimName')) {
+  if (savedHeim && document.getElementById('input_HeimName') && savedHeim !== "Testspiel") {
     document.getElementById('input_HeimName').value = savedHeim;
     waehleTeamMKK('Heim', true);
   }
-  if (savedGast && document.getElementById('input_GastName')) {
+  if (savedGast && document.getElementById('input_GastName') && savedGast !== "Testspiel") {
     document.getElementById('input_GastName').value = savedGast;
     waehleTeamMKK('Gast', true);
   }
 }
 
+// RADIKALER RESET: Bereinigt den Speicher restlos vor dem Neuladen!
 function alleNamenLeeren() {
   window.localStorage.clear();
+  // Zwingt die App beim nächsten Start im Dropdown-Modus zu bleiben
+  window.localStorage.setItem('mkk_force_dropdown_reset', 'true');
   window.location.reload();
 }
 
@@ -3303,11 +3310,13 @@ pruefeEingabenFürWeiter = function() {
   }
 };
 
+// Hebt die Reset-Sperre nach dem erfolgreichen Laden der Seite wieder auf
+setTimeout(() => {
+  window.localStorage.removeItem('mkk_force_dropdown_reset');
+}, 1000);
+
 // Startet den Abruf lokal beim Laden der Seite
 ladeMkkTeamsAusGitHubText();
-
-
-
 
 </script>
 </body>
