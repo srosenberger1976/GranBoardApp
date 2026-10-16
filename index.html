@@ -2796,188 +2796,265 @@ function getSpielerNameFuerSpiel(kuersel, spielNummer){
 
 
 
+// =================================================================
+// FIX: ECHTE SPIELERNAMEN & GEWINNER-KÜRZEL IM SPIELPLAN (TEIL 1)
+// =================================================================
 function druckeSpielberichtPDF() {
-  var printWindow = window.open('', '_blank', 'width=900,height=850');
-  if (!printWindow) {
-    alert("Popup-Blocker aktiv! Bitte erlauben, um den Spielbericht zu drucken.");
-    return;
-  }
-
-  var tHeim = window.teamNameHeim || "Heimteam";
-  var tGast = window.teamNameGast || "Gastteam";
-  var kHeim = window.kapitaenHeim || "Nicht angegeben";
-  var kGast = window.kapitaenGast || "Nicht angegeben";
-  var datumText = new Date().toLocaleDateString('de-DE');
-
-  // Auswechslungs-Protokoll aus der App auslesen
-  var wechselLogHTML = "";
-  var subLogEl = document.getElementById('subLog');
-  if (subLogEl && subLogEl.innerHTML.trim() !== "") {
-    wechselLogHTML = subLogEl.innerHTML;
-  } else if (localStorage.getItem('mkk_subLogHTML')) {
-    wechselLogHTML = localStorage.getItem('mkk_subLogHTML');
-  }
-
-  printWindow.document.write('<html><head><title>Spielbericht — ' + tHeim + ' vs. ' + tGast + '</title>');
-  printWindow.document.write('<style>');
-  printWindow.document.write('  body { font-family: Arial, sans-serif; color: #000; background: #fff; padding: 20px; margin: 0; }');
-  printWindow.document.write('  .header-main { text-align: center; border-bottom: 3px double #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }');
-  printWindow.document.write('  .header-main h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }');
-  printWindow.document.write('  .sub-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 3px; }');
-  printWindow.document.write('  .captains-box { display: flex; justify-content: space-between; margin-bottom: 15px; padding: 8px; border: 1px solid #aaa; border-radius: 4px; font-size: 13px; background: #f9f9f9; }');
-  printWindow.document.write('  .section-title { font-size: 11px; font-weight: bold; letter-spacing: 0.5px; margin: 25px 0 5px 0; text-transform: uppercase; border-left: 3px solid #000; padding-left: 5px; }');
-  printWindow.document.write('  .print-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }');
-  printWindow.document.write('  .print-table th { background: #f0f0f0; text-transform: uppercase; font-size: 11px; border: 1px solid #000; padding: 6px; text-align: left; }');
-  printWindow.document.write('  .print-table td { border: 1px solid #000; padding: 6px; vertical-align: middle; }');
-  printWindow.document.write('  .col-id { width: 30px; text-align: center; font-weight: bold; }');
-  printWindow.document.write('  .col-mod { width: 130px; font-weight: 500; }');
-  printWindow.document.write('  .col-res { width: 60px; text-align: center; font-weight: bold; font-family: monospace; font-size: 14px; background: #fafafa; }');
-  printWindow.document.write('  .log-box { border: 1px dashed #555; padding: 10px; font-size: 12px; font-family: monospace; background: #fafafa; border-radius: 4px; line-height: 1.5; }');
-  printWindow.document.write('  .log-entry { border-bottom: 1px solid #eee; padding: 3px 0; }');
-  printWindow.document.write('  .log-entry:last-child { border-bottom: none; }');
-  printWindow.document.write('</style></head><body>');
-
-  // Kopfbereich & Kapitäne
-  printWindow.document.write('<div class="header-main"><h1>' + tHeim + ' vs. ' + tGast + ' — Endstand: ' + heimGesamtPunkte + ' : ' + gastGesamtPunkte + '</h1></div>');
-  printWindow.document.write('<div class="sub-header"><span>🎯 MKK Dart-Liga — Offizieller Spielbericht</span><span>🗓️ Spieldatum: ' + datumText + '</span></div>');
-  printWindow.document.write('<div class="captains-box">');
-  printWindow.document.write('  <div><strong>Kapitän ' + tHeim + ':</strong> ' + kHeim + '</div>');
-  printWindow.document.write('  <div><strong>Kapitän ' + tGast + ':</strong> ' + kGast + '</div>');
-  printWindow.document.write('</div>');
-
-  // Tabelle 1: Spiele
-  printWindow.document.write('<div class="section-title">📑 Absolvierte Ligaspiele (1 - 34)</div>');
-  printWindow.document.write('<table class="print-table">');
-  printWindow.document.write('<thead><tr><th style="text-align:center;">#</th><th>Spielmodus</th><th>Begegnung (Heim vs. Gast)</th><th style="text-align:center;">Ergebnis</th></tr></thead><tbody>');
-
-  ligaSpiele.forEach(function(spiel) {
-    var hSpieler = activePlayerNames[spiel.reihenfolge[0]] || spiel.reihenfolge[0];
-    if (spiel.reihenfolge.length > 2) { hSpieler += ' + ' + (activePlayerNames[spiel.reihenfolge[2]] || spiel.reihenfolge[2]); }
-    var gSpieler = activePlayerNames[spiel.reihenfolge[1]] || spiel.reihenfolge[1];
-    if (spiel.reihenfolge.length > 3) { gSpieler += ' + ' + (activePlayerNames[spiel.reihenfolge[3]] || spiel.reihenfolge[3]); }
-    var ergebnisZelle = spiel.ergebnis || '-';
-
+  console.log("MKK-System: Generiere vollständigen PDF-Ausdruck mit echten Spielernamen...");
   
+  // Holt die gespeicherten Mannschaftsnamen
+  var heimTeamName = localStorage.getItem('mkk_teamNameHeim') || window.teamNameHeim || "Heimteam";
+  var gastTeamName = localStorage.getItem('mkk_teamNameGast') || window.teamNameGast || "Gastteam";
+  var ergebnisText = document.getElementById('totalLeagueScore') ? document.getElementById('totalLeagueScore').innerText : "0 : 0";
+  
+  // Generiert das aktuelle Tagesdatum im deutschen Format
+  var heute = new Date();
+  var tag = String(heute.getDate()).padStart(2, '0');
+  var monat = String(heute.getMonth() + 1).padStart(2, '0');
+  var jahr = heute.getFullYear();
+  var aktuellesDatumText = tag + "." + monat + "." + jahr;
 
-
-
-
-
-
-
-    printWindow.document.write('<tr>');
-    printWindow.document.write('  <td class="col-id">' + spiel.id + '</td>');
-    printWindow.document.write('  <td class="col-mod">' + spiel.modus + '</td>');
+  var heimSlots = ['H1', 'H2', 'H3', 'H4', 'HE1', 'HE2', 'HE3', 'HE4'];
+  var gastSlots = ['G1', 'G2', 'G3', 'G4', 'GE1', 'GE2', 'GE3', 'GE4'];
+  
+  // Hilfsfunktion für Spielernamen und Passnummern
+  function holeSpielerMitPassnummer(slot, istHeim) {
+    var inputEl = document.getElementById('input_' + slot);
+    var name = inputEl ? inputEl.value.trim() : (window.activePlayerNames ? window.activePlayerNames[slot] : "");
+    if (!name || name === slot) return null;
     
-    // Gewinner fett und unterstrichen direkt in der Begegnung markieren
-    let hSpielerAnzeige = hSpieler;
-    let gSpielerAnzeige = gSpieler;
-    
-    if (spiel.ausmacher) {
-        if (hSpieler.includes(spiel.ausmacher)) {
-            hSpielerAnzeige = hSpieler.replace(spiel.ausmacher, '<strong style="text-decoration: underline; color: #000;">' + spiel.ausmacher + '</strong>');
-        }
-        if (gSpieler.includes(spiel.ausmacher)) {
-            gSpielerAnzeige = gSpieler.replace(spiel.ausmacher, '<strong style="text-decoration: underline; color: #000;">' + spiel.ausmacher + '</strong>');
-        }
-    }
-    printWindow.document.write('  <td class="col-vs">' + hSpielerAnzeige + ' <span style="color:#666; font-size:11px;">vs.</span> ' + gSpielerAnzeige + '</td>');
-
-    // 🎯 ERGEBNIS-ANPASSUNG: Kürzel links neben dem Zwischenstand einblenden
-    var ergebnisAnzeigeText = ergebnisZelle;
-    if (spiel.gewinnerKuerzel && ergebnisZelle !== '-') {
-        // Schreibt das Kürzel (z.B. G4) fett direkt vor den Spielstand
-        ergebnisAnzeigeText = '<strong style="color:#000; margin-right:6px;">' + spiel.gewinnerKuerzel + '</strong> ' + ergebnisZelle;
+    var passNummer = "";
+    var aktTeam = istHeim ? heimTeamName : gastTeamName;
+    if (MKK_TEAM_SPEICHER && MKK_TEAM_SPEICHER[aktTeam] && MKK_TEAM_SPEICHER[aktTeam].passnummern) {
+      passNummer = MKK_TEAM_SPEICHER[aktTeam].passnummern[name] || "";
     }
     
-    printWindow.document.write('  <td class="col-res" style="text-align:center;">' + ergebnisAnzeigeText + '</td>');
-    printWindow.document.write('</tr>');
+    return {
+      name: name,
+      slot: slot,
+      pass: passNummer ? " (Pass-Nr: " + passNummer + ")" : " (Keine Pass-Nr)"
+    };
+  }
+
+  // Hilfsfunktion: Holt den echten, aktuell eingetragenen Namen für ein bestimmtes Kürzel (z.B. "H1")
+  function holeAktuellenNamenFuerKuerzel(kuerzel) {
+    if (!kuerzel) return "";
+    var inputEl = document.getElementById('input_' + kuerzel);
+    if (inputEl && inputEl.value.trim() !== "") {
+      return inputEl.value.trim();
+    }
+    if (window.activePlayerNames && window.activePlayerNames[kuerzel]) {
+      return window.activePlayerNames[kuerzel];
+    }
+    return kuerzel;
+  }
+
+  var alleHeimSpieler = [];
+  heimSlots.forEach(function(s) {
+    var sObj = holeSpielerMitPassnummer(s, true);
+    if (sObj) alleHeimSpieler.push(sObj);
   });
-  printWindow.document.write('</tbody></table>');
 
-  // Tabelle 2: Getrennte Highlights (150er, 180er, u100)
-  printWindow.document.write('<div class="section-title">🔥 Besondere Highlights (Scores & High-Checks)</div>');
-  printWindow.document.write('<table class="print-table">');
-  printWindow.document.write('<thead><tr><th>Spielername</th><th style="text-align:center;">150er+</th><th style="text-align:center;">180er</th><th style="text-align:center;">u100 High Finish</th></tr></thead><tbody>');
+  var alleGastSpieler = [];
+  gastSlots.forEach(function(s) {
+    var sObj = holeSpielerMitPassnummer(s, false);
+    if (sObj) alleGastSpieler.push(sObj);
+  });
 
-
-  var hatHighlights = false;
-  if (window.spielerStats) {
-    Object.keys(window.spielerStats).forEach(function(pName) {
-      var s = window.spielerStats[pName];
-      if (pName !== "H1" && pName !== "H2" && pName !== "H3" && pName !== "H4" && pName !== "G1" && pName !== "G2" && pName !== "G3" && pName !== "G4") {
-        if (s.h150 > 0 || s.h180 > 0 || s.hf100 > 0) {
-          hatHighlights = true;
-          printWindow.document.write('<tr>');
-          printWindow.document.write('  <td><strong>' + pName + '</strong></td>');
-          printWindow.document.write('  <td style="text-align:center;">' + s.h150 + '</td>');
-          printWindow.document.write('  <td style="text-align:center;">' + s.h180 + '</td>');
-          printWindow.document.write('  <td style="text-align:center;">' + s.hf100 + '</td>');
-          printWindow.document.write('</tr>');
-        }
+  // Berechnet die Einsätze für die Statistik
+  function berechneSpieleFuerSpieler(kuersel, name) {
+    if (typeof ligaSpiele === 'undefined') return 0;
+    let einsaetze = 0;
+    ligaSpiele.forEach(function(spiel, idx) {
+      if (idx >= currentMatchIndex) return; 
+      if (!spiel.reihenfolge) return;
+      let istImMatch = spiel.reihenfolge.includes(kuersel);
+      if (window.mkk_wechselHistorie && window.mkk_wechselHistorie.length > 0) {
+        window.mkk_wechselHistorie.forEach(function(w) {
+          if (spiel.id >= w.abSpiel && w.rausKuersel === kuersel && name !== w.nameRein) istImMatch = false;
+          if (spiel.id >= w.abSpiel && w.rausKuersel === kuersel && name === w.nameRein) istImMatch = true;
+        });
       }
+      if (istImMatch) einsaetze++;
     });
-  }
-  if (!hatHighlights) {
-    printWindow.document.write('<tr><td colspan="4" style="text-align:center; color:#666; padding:8px;">Keine High-Scores oder High-Finishes erzielt.</td></tr>');
-  }
-  printWindow.document.write('</tbody></table>');
-
-  // Tabelle 3: Leistungspunkte (Siege, Assists, Gesamtpunkte)
-  printWindow.document.write('<div class="section-title">📊 Spieler-Leistungspunkte & Scorewertung</div>');
-  printWindow.document.write('<table class="print-table">');
-  printWindow.document.write('<thead><tr><th>Spielername</th><th style="text-align:center;">Siege (Checks)</th><th style="text-align:center;">Assists</th><th style="text-align:center;">Gesamtpunkte</th></tr></thead><tbody>');
-
-  var hatLeistung = false;
-  if (window.spielerStats) {
-    Object.keys(window.spielerStats).forEach(function(pName) {
-      var s = window.spielerStats[pName];
-      if (pName !== "H1" && pName !== "H2" && pName !== "H3" && pName !== "H4" && pName !== "G1" && pName !== "G2" && pName !== "G3" && pName !== "G4") {
-        if (s.siege > 0 || s.assists > 0) {
-          hatLeistung = true;
-          var gesamt = (s.siege * 2) + (s.assists * 1);
-          printWindow.document.write('<tr>');
-          printWindow.document.write('  <td><strong>' + pName + '</strong></td>');
-          printWindow.document.write('  <td style="text-align:center; font-weight:bold; color:#28a745;">' + s.siege + '</td>');
-          printWindow.document.write('  <td style="text-align:center;">' + s.assists + '</td>');
-          printWindow.document.write('  <td style="text-align:center; font-weight:bold; background:#f7f7f7;">' + gesamt + '</td>');
-          printWindow.document.write('</tr>');
-        }
-      }
-    });
-  }
-  if (!hatLeistung) {
-    printWindow.document.write('<tr><td colspan="4" style="text-align:center; color:#666; padding:8px;">Noch keine Wertungspunkte vergeben.</td></tr>');
-  }
-  printWindow.document.write('</tbody></table>');
-
-  // Bereich für Auswechslungen
-  printWindow.document.write('<div class="section-title">🔄 Mannschafts-Auswechslungen (Protokoll)</div>');
-  if (typeof wechselLogHTML !== 'undefined' && wechselLogHTML !== "") {
-    printWindow.document.write('<div class="log-box">' + wechselLogHTML + '</div>');
-  } else {
-    printWindow.document.write('<div class="log-box" style="color:#666; font-style:italic; text-align:center;">Keine Spielerwechsel an diesem Spieltag durchgeführt.</div>');
+    return einsaetze;
   }
 
-  printWindow.document.write('</body></html>');
-  printWindow.document.close();
+  var printWindow = window.open('', '_blank');
+  var html = '<html><head><title>MKK Liga Spielbericht</title><style>';
+  html += 'body { font-family: Arial, sans-serif; color: #000; background: #fff; padding: 20px; font-size: 12px; }';
+  html += 'h1, h2 { text-transform: uppercase; margin-bottom: 5px; border-bottom: 2px solid #000; padding-bottom: 3px; }';
+  html += '.meta-zeile { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 13px; }';
+  html += 'table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }';
+  html += 'th, td { border: 1px solid #000; padding: 6px 8px; text-align: left; }';
+  html += 'th { background-color: #f2f2f2; font-weight: bold; }';
+  html += '.text-center { text-align: center; }';
+  html += '.header-box { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-bottom: 20px; border: 3px solid #000; padding: 10px; }';
+  html += '.aktiv-aktiv { font-weight: bold !important; text-decoration: underline !important; background-color: #fcfcfc; }';
+  html += '</style></head><body>';
+
+  html += '<h1>OFFIZIELLER SPIELBERICHT - MKK DART LIGA</h1>';
+  html += '<div class="meta-zeile"><div>Spielmodus: 501 / Cricket Multi-Match</div><div>Datum: ' + aktuellesDatumText + '</div></div>';
+  html += '<div class="header-box"><div>HEIM: ' + heimTeamName + '</div><div style="font-size:22px;">' + ergebnisText + '</div><div>GAST: ' + gastTeamName + '</div></div>';
+
+  // 1. TABELLE: DER SPIELPLAN MIT ECHTEN NAMEN AUS DEN TEXTBELDERN 🎯
+  html += '<h2>| 🎯 GESPIELTE PAARUNGEN & EINZELERGEBNISSE (KOMPLETTER SPIELPLAN)</h2>';
+  html += '<table><thead><tr><th class="text-center" style="width:6%;">NR.</th><th>HEIM-SPIELER</th><th>GAST-SPIELER</th><th class="text-center" style="width:10%;">LEGS</th><th class="text-center" style="width:10%;">PUNKT</th></tr></thead><tbody>';
   
+  if (typeof ligaSpiele !== 'undefined' && ligaSpiele.length > 0) {
+    ligaSpiele.forEach(function(spiel) {
+      // Ermittelt, wie viele Spieler in diesem Match registriert sind
+      var istDoppel = (spiel.reihenfolge && spiel.reihenfolge.length === 4);
+      
+      var nameHeimText = "";
+      var nameGastText = "";
+      
+      if (istDoppel) {
+        // Holt die echten Namen der 4 Doppel-Partner aus den Dropdowns
+        var h1Kuerzel = spiel.reihenfolge[0];
+        var h2Kuerzel = spiel.reihenfolge[1];
+        var g1Kuerzel = spiel.reihenfolge[2];
+        var g2Kuerzel = spiel.reihenfolge[3];
+        
+        var nH1 = holeAktuellenNamenFuerKuerzel(h1Kuerzel);
+        var nH2 = holeAktuellenNamenFuerKuerzel(h2Kuerzel);
+        var nG1 = holeAktuellenNamenFuerKuerzel(g1Kuerzel);
+        var nG2 = holeAktuellenNamenFuerKuerzel(g2Kuerzel);
+        
+        nameHeimText = nH1 + " / " + nH2;
+        nameGastText = nG1 + " / " + nG2;
+        
+        // Gewinner ermitteln, fett markieren und Team-Kürzel anhängen
+        if (spiel.punkteHeim > spiel.punkteGast) {
+          nameHeimText = "<b>" + nameHeimText + " [HEIM]</b>";
+        } else if (spiel.punkteGast > spiel.punkteHeim) {
+          nameGastText = "<b>" + nameGastText + " [GAST]</b>";
+        }
+      } else {
+        // Holt die echten Namen für die Einzel-Gegner aus den Kürzeln (z.B. "H1" und "G1")
+        var kh = (spiel.reihenfolge && spiel.reihenfolge[0]) ? spiel.reihenfolge[0] : "H1";
+        var kg = (spiel.reihenfolge && spiel.reihenfolge[1]) ? spiel.reihenfolge[1] : "G1";
+        
+        nameHeimText = holeAktuellenNamenFuerKuerzel(kh);
+        nameGastText = holeAktuellenNamenFuerKuerzel(kg);
+        
+        // Gewinner fett markieren und seine exakte Position (z.B. [H1] oder [G3]) anhängen!
+        if (spiel.punkteHeim > spiel.punkteGast) {
+          nameHeimText = "<b>" + nameHeimText + " [" + kh + "]</b>";
+        } else if (spiel.punkteGast > spiel.punkteHeim) {
+          nameGastText = "<b>" + nameGastText + " [" + kg + "]</b>";
+        }
+      }
+      
+      var legsText = (spiel.legsHeim !== undefined && spiel.legsHeim !== null) ? (spiel.legsHeim + " : " + spiel.legsGast) : "";
+      var punktText = (spiel.punkteHeim !== undefined && spiel.punkteHeim !== null) ? (spiel.punkteHeim + " : " + spiel.punkteGast) : "";
+      
+      html += '<tr>' +
+              '<td class="text-center"><b>' + spiel.id + '</b></td>' +
+              '<td>' + nameHeimText + '</td>' +
+              '<td>' + nameGastText + '</td>' +
+              '<td class="text-center" style="font-weight:bold;">' + legsText + '</td>' +
+              '<td class="text-center" style="font-weight:bold; background-color:#fafafa;">' + punktText + '</td>' +
+              '</tr>';
+    });
+  } else {
+    html += '<tr><td colspan="4" class="text-center">Der Spielplan konnte nicht geladen werden.</td></tr>';
+  }
+  html += '</tbody></table>';
+  // =================================================================
+  // LIGA-PDF DRUCKFUNKTION (TEIL 2 - LEISTUNGSWERTE & HIGHLIGHTS UNTEN)
+  // =================================================================
+
+  // 2. TABELLE: LEISTUNGSWERTE HEIMTEAM
+  html += '<h2>| 📊 SPIELER-LEISTUNGSPUNKTE: ' + heimTeamName.toUpperCase() + '</h2>';
+  html += '<table><thead><tr><th>SPIELERNAME (PASS-NR)</th><th class="text-center">SPIELE</th><th class="text-center">SIEGE (CHECKS)</th><th class="text-center">ASSISTS</th><th class="text-center">GESAMTPUNKTE</th></tr></thead><tbody>';
+  
+  alleHeimSpieler.forEach(function(sp) {
+    var stats = (window.spielerStats && window.spielerStats[sp.name]) ? window.spielerStats[sp.name] : { siege: 0, assists: 0 };
+    var spieleAnzahl = berechneSpieleFuerSpieler(sp.slot, sp.name);
+    var gesamt = (stats.siege || 0) + (stats.assists || 0);
+    
+    var highlightKlasse = (spieleAnzahl > 0) ? ' class="aktiv-aktiv"' : '';
+    
+    html += '<tr' + highlightKlasse + '><td>' + sp.name + '<small style="color:#555">' + sp.pass + '</small> <small>(' + sp.slot + ')</small></td>' +
+            '<td class="text-center">' + spieleAnzahl + '</td>' +
+            '<td class="text-center" style="color:green;">' + (stats.siege || 0) + '</td>' +
+            '<td class="text-center">' + (stats.assists || 0) + '</td>' +
+            '<td class="text-center">' + gesamt + '</td></tr>';
+  });
+  html += '</tbody></table>';
+
+  // 3. TABELLE: LEISTUNGSWERTE GASTTEAM
+  html += '<h2>| 📊 SPIELER-LEISTUNGSPUNKTE: ' + gastTeamName.toUpperCase() + '</h2>';
+  html += '<table><thead><tr><th>SPIELERNAME (PASS-NR)</th><th class="text-center">SPIELE</th><th class="text-center">SIEGE (CHECKS)</th><th class="text-center">ASSISTS</th><th class="text-center">GESAMTPUNKTE</th></tr></thead><tbody>';
+  
+  alleGastSpieler.forEach(function(sp) {
+    var stats = (window.spielerStats && window.spielerStats[sp.name]) ? window.spielerStats[sp.name] : { siege: 0, assists: 0 };
+    var spieleAnzahl = berechneSpieleFuerSpieler(sp.slot, sp.name);
+    var gesamt = (stats.siege || 0) + (stats.assists || 0);
+    
+    var highlightKlasse = (spieleAnzahl > 0) ? ' class="aktiv-aktiv"' : '';
+    
+    html += '<tr' + highlightKlasse + '><td>' + sp.name + '<small style="color:#555">' + sp.pass + '</small> <small>(' + sp.slot + ')</small></td>' +
+            '<td class="text-center">' + spieleAnzahl + '</td>' +
+            '<td class="text-center" style="color:green;">' + (stats.siege || 0) + '</td>' +
+            '<td class="text-center">' + (stats.assists || 0) + '</td>' +
+            '<td class="text-center">' + gesamt + '</td></tr>';
+  });
+  html += '</tbody></table>';
+
+  // 4. TABELLE: MANNSCHAFTS-AUSWECHSLUNGEN (PROTOKOLL)
+  html += '<h2>| 📝 MANNSCHAFTS-AUSWECHSLUNGEN (PROTOKOLL)</h2>';
+  html += '<div style="border:1px solid #000; padding:10px; min-height:40px; font-family:monospace; font-size:11px; line-height:1.5;">';
+  
+  if (window.mkk_wechselHistorie && window.mkk_wechselHistorie.length > 0) {
+    window.mkk_wechselHistorie.forEach(function(w) {
+      html += '<div>• Ab Spiel ' + w.abSpiel + ': ' + w.nameRaus + ' (' + w.rausKuersel + ') geht raus -> ' + w.nameRein + ' (' + w.reinKuersel + ') kommt rein.</div>';
+    });
+  } else {
+    html += '<div style="color:#666;">Es wurden an diesem Spielabend keine Auswechslungen vorgenommen.</div>';
+  }
+  html += '</div>';
+
+  // 5. TABELLE: BESONDERE HIGHLIGHTS REIST JETZT NACH UNTEN DIREKT VOR DIE UNTERSCHRIFTEN
+  html += '<h2>| 🔥 BESONDERE HIGHLIGHTS (SCORES & HIGH-CHECKS)</h2>';
+  html += '<table><thead><tr><th>SPIELERNAME (MANNSCHAFT)</th><th class="text-center">150ER+</th><th class="text-center">180ER</th><th class="text-center">U100 HIGH FINISH</th></tr></thead><tbody>';
+  
+  var hatHighlights = false;
+  var alleSpielerKombiniert = alleHeimSpieler.map(function(s) { s.team = heimTeamName; return s; })
+                              .concat(alleGastSpieler.map(function(s) { s.team = gastTeamName; return s; }));
+
+  alleSpielerKombiniert.forEach(function(sp) {
+    var stats = (window.spielerStats && window.spielerStats[sp.name]) ? window.spielerStats[sp.name] : { h180: 0, h150: 0, hf100: 0 };
+    if (stats.h180 > 0 || stats.h150 > 0 || stats.hf100 > 0) {
+      hatHighlights = true;
+      html += '<tr><td>' + sp.name + sp.pass + ' <small>(' + sp.team + ')</small></td>' +
+              '<td class="text-center">' + (stats.h150 || 0) + '</td>' +
+              '<td class="text-center">' + (stats.h180 || 0) + '</td>' +
+              '<td class="text-center">' + (stats.hf100 || 0) + '</td></tr>';
+    }
+  });
+  if (!hatHighlights) {
+    html += '<tr><td colspan="4" class="text-center">Keine besonderen Highlights in diesem Match erzielt.</td></tr>';
+  }
+  html += '</tbody></table>';
+
+  // Unterschriftenfelder bilden den endgültigen Abschluss des Dokuments
+  html += '<div style="margin-top: 50px; display: flex; justify-content: space-between; font-size:12px;">';
+  html += '<div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px;">Unterschrift Kapitän HEIM (' + (localStorage.getItem('mkk_kapitaenHeim') || window.kapitaenHeim || "Heim") + ')</div>';
+  html += '<div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px;">Unterschrift Kapitän GAST (' + (localStorage.getItem('mkk_kapitaenGast') || window.kapitaenGast || "Gast") + ')</div>';
+  html += '</div>';
+
+  html += '</body></html>';
+
+  printWindow.document.write(html);
+  printWindow.document.close();
   printWindow.focus();
+  
   setTimeout(function() {
     printWindow.print();
-  }, 250);
+  }, 500);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
