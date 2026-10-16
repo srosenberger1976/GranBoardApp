@@ -361,6 +361,27 @@ body {
   <div id="spielAuswahlBereich" style="display: none;">
     <h2 style="font-size:15px; margin-bottom:15px; color:#ffc107;"> ⚙️ Untermenü: Spielauswahl festlegen</h2>
     
+
+
+ <!-- LIGA AUSWAHL UNTERMENÜ -->
+ <div style="margin: 15px 0; text-align: left; background: #222; padding: 10px; border-radius: 6px; border: 1px solid #444;">
+ <label style="font-weight: bold; color: #00ea92; font-size: 13px;"> Liga-Spielplan auswählen:</label> 📋
+ <select id="ligaAuswahlDropdown" style="width: 100%; margin-top: 5px; padding: 8px; background-color: #222222 !important; color: #ffffff !important; border: 1px solid #444444;" onchange="aktiviereLigaPlan()">
+  <option value="MKK">MKK Bullshooter - Liga (34 Matches)</option>
+  <option value="DSH">DSH Bullshooter - Liga (32 Matches)</option>
+ </select>
+ </div>
+
+
+
+
+
+
+
+
+
+
+
     <!-- 501 SPIELMODUS -->
     <div style="margin: 15px 0; text-align: left; background: #222; padding: 10px; border-radius: 6px; border: 1px solid #444;">
       <label style="font-weight: bold; color: #ffc107; font-size: 13px;"> 501 Spielmodus festlegen:</label>
@@ -482,18 +503,14 @@ body {
       </button>
     </div>
 
-    <!-- Match Starten Button (Runder Button unten rechts) -->
-    <div style="position: fixed; bottom: 30px; right: 30px; z-index: 99999;">
-      <button onclick="startLigaSpiel()" style="
-        background: #28a745 !important; color: white !important; border: 4px solid #fff !important; 
-        width: 120px; height: 120px; border-radius: 50% !important; font-size: 15px; font-weight: bold; cursor: pointer; 
-        box-shadow: 0 0 25px rgba(40, 167, 69, 0.8), 0 8px 16px rgba(0,0,0,0.6);
-        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-transform: uppercase; line-height: 1.2; transition: transform 0.2s, background-color 0.2s;"
-        onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1.0)';">
-        <span> </span> 🎯
-        <span>Match<br>Starten</span>
-      </button>
-    </div>
+ <!-- Match Starten Button (Runder Button unten rechts) -->
+ <div style="position: fixed; bottom: 30px; right: 30px; z-index: 99999;">
+ <button onclick="aktiviereLigaPlan(); startLigaSpiel();" style="background: #28a745 !important; color: white !important; border: 4px solid #fff !important; width: 120px; height: 120px; border-radius: 50% !important; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(40, 167, 69, 0.8), 0 8px 16px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-transform: uppercase; line-height: 1.2; transition: transform 0.2s, background-color 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1.0)';" id="btnStartLiga">
+ 🎯<br>Match<br>Starten
+ </button>
+ </div>
+
+
   </div>
 
 </div>
@@ -640,72 +657,83 @@ body {
 <!-- INHALT TAB 3: WECHSEL & RANGLISTE (SAUBER GETRENNT) -->
 <!-- INHALT TAB 3: WECHSEL & RANGLISTE (KOMPAKT & MEHR PLATZ) -->
 <div class="tab-content" id="tabContentWechsel">
-    <div style="display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
-        
-        <!-- OBERER BEREICH: TEAMS NEBENANANDER -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            
-            <!-- SPALTE HEIMTEAM -->
-            <div class="scroll-panel" style="background:#141414; border: 3px solid #00d2ff !important; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
-                <h2 style="font-size:16px; color:#00d2ff; margin:0; text-align:center;" id="titleRanglisteHeim">Wechsel & Rangliste HEIMTEAM 🏆</h2>
-                
-                <!-- Dropdowns kompakt -->
-                <div style="display: flex; gap: 6px; align-items:center; background: #1e1e1e; padding: 6px; border-radius: 6px;">
-                    <select id="subOutHeimSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
-                    <span style="font-size:11px; color:#aaa;">für</span>
-                    <select id="subInHeimSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
-                    <button onclick="executeSubstitution('Heim')" style="background:#00d2ff; color:black; padding:8px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:12px;">Tauschen</button>
-                </div>
+ <!-- OBERER BEREICH: TEAMS NEBENANANDER -->
+ <div style="display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
+ 
+ <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+ 
+ <!-- SPALTE HEIMTEAM -->
+ <div class="scroll-panel" style="background:#141414; border: 3px solid #00d2ff !important; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+ <h2 style="font-size:16px; color:#00d2ff; margin:0; text-align:center;" id="titleRanglisteHeim">Wechsel & Rangliste HEIMTEAM </h2> 🏆
+ 
+ <!-- Dropdowns kompakt -->
+ <div style="display: flex; gap: 6px; align-items:center; background: #1e1e1e; padding: 6px; border-radius: 6px;">
+ <select id="subOutHeimSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
+ <span style="font-size:11px; color:#aaa;">für</span>
+ <select id="subInHeimSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
+ <!-- KORRIGIERTER HEIM-BUTTON 🔄 -->
+ <button onclick="executeSubstitution('Heim'); if(typeof ligaSpiele !== 'undefined' && ligaSpiele[currentMatchIndex]) { updateMultiScoreGrid(ligaSpiele[currentMatchIndex]); }" style="background:#00d2ff; color:black; padding:8px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:12px;">Tauschen</button>
+ </div>
+ <!-- Tabelle direkt darunter -->
+ <table class="rank-table" style="margin-top: 5px; font-size:13px;">
+ <thead>
+ <tr>
+ <th>Pos.</th>
+ <th>Name</th>
+ <th style="color:#ffc107; text-align:center;">Spiele</th> 
+ <th style="color:#00ea92; text-align:center;">Sieg</th>
+ <th style="color:#00d2ff; text-align:center;">Assist</th>
+ <th style="color:#fff; background:#222; text-align:center;">Gesamt</th>
+ <th style="color:#00d2ff; text-align:center;">150</th>
+ <th style="color:#ffc107; text-align:center;">180</th>
+ <th style="color:#ff0055; text-align:center;">HF100+</th>
+ </tr>
+ </thead>
+ <tbody id="rankTableBodyHeim"></tbody>
+ </table>
+ </div>
 
-                <!-- Tabelle direkt darunter -->
-                <table class="rank-table" style="margin-top: 5px; font-size:13px;">
-<thead>
-  <tr>
-    <th>Pos.</th>
-    <th>Name</th>
-    <th style="color:#ffc107; text-align:center;">Spiele</th> <!-- HIER NEU EINBATHEN -->
-    <th style="color:#00ea92; text-align:center;">Sieg</th>
-    <th style="color:#00d2ff; text-align:center;">Assist</th>
-    <th style="color:#fff; background:#222; text-align:center;">Gesamt</th>
-    <th style="color:#00d2ff; text-align:center;">150</th>
-    <th style="color:#ffc107; text-align:center;">180</th>
-    <th style="color:#ff0055; text-align:center;">HF100+</th>
-  </tr>
-</thead>
-                    <tbody id="rankTableBodyHeim"></tbody>
-                </table>
-            </div>
+ <!-- SPALTE GASTTEAM -->
+ <div class="scroll-panel" style="background:#141414; border: 3px solid #ff0055 !important; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+ <h2 style="font-size:16px; color:#ff0055; margin:0; text-align:center;" id="titleRanglisteGast">Wechsel & Rangliste GASTTEAM </h2> 🏆
+ 
+ <!-- Dropdowns kompakt -->
+ <div style="display: flex; gap: 6px; align-items:center; background: #1e1e1e; padding: 6px; border-radius: 6px;">
+ <select id="subOutGastSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
+ <span style="font-size:11px; color:#aaa;">für</span>
+ <select id="subInGastSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
+ <!-- KORRIGIERTER GAST-BUTTON 🔄 -->
+ <button onclick="executeSubstitution('Gast'); if(typeof ligaSpiele !== 'undefined' && ligaSpiele[currentMatchIndex]) { updateMultiScoreGrid(ligaSpiele[currentMatchIndex]); }" style="background:#ff0055; color:white; padding:8px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:12px;">Tauschen</button>
+ </div>
+ <!-- Tabelle direkt darunter -->
+ <table class="rank-table" style="margin-top: 5px; font-size:13px;">
+ <thead>
+ <tr>
+ <th>Pos.</th>
+ <th>Name</th>
+ <th style="color:#ffc107; text-align:center;">Spiele</th> 
+ <th style="color:#00ea92; text-align:center;">Sieg</th>
+ <th style="color:#00d2ff; text-align:center;">Assist</th>
+ <th style="color:#fff; background:#222; text-align:center;">Gesamt</th>
+ <th style="color:#00d2ff; text-align:center;">150</th>
+ <th style="color:#ffc107; text-align:center;">180</th>
+ <th style="color:#ff0055; text-align:center;">HF100+</th>
+ </tr>
+ </thead>
+ <tbody id="rankTableBodyGast"></tbody>
+ </table>
+ </div>
 
-            <!-- SPALTE GASTTEAM -->
-            <div class="scroll-panel" style="background:#141414; border: 3px solid #ff0055 !important; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
-                <h2 style="font-size:16px; color:#ff0055; margin:0; text-align:center;" id="titleRanglisteGast">Wechsel & Rangliste GASTTEAM 🏆</h2>
-                
-                <!-- Dropdowns kompakt -->
-                <div style="display: flex; gap: 6px; align-items:center; background: #1e1e1e; padding: 6px; border-radius: 6px;">
-                    <select id="subOutGastSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
-                    <span style="font-size:11px; color:#aaa;">für</span>
-                    <select id="subInGastSelect" style="flex:1; padding:8px; background:#222; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;"></select>
-                    <button onclick="executeSubstitution('Gast')" style="background:#ff0055; color:white; padding:8px 12px; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:12px;">Tauschen</button>
-                </div>
 
-                <!-- Tabelle direkt darunter -->
-                <table class="rank-table" style="margin-top: 5px; font-size:13px;">
-<thead>
-  <tr>
-    <th>Pos.</th>
-    <th>Name</th>
-    <th style="color:#ffc107; text-align:center;">Spiele</th> <!-- HIER NEU EINBATHEN -->
-    <th style="color:#00ea92; text-align:center;">Sieg</th>
-    <th style="color:#00d2ff; text-align:center;">Assist</th>
-    <th style="color:#fff; background:#222; text-align:center;">Gesamt</th>
-    <th style="color:#00d2ff; text-align:center;">150</th>
-    <th style="color:#ffc107; text-align:center;">180</th>
-    <th style="color:#ff0055; text-align:center;">HF100+</th>
-  </tr>
-</thead>
-                    <tbody id="rankTableBodyGast"></tbody>
-                </table>
-            </div>
+
+
+
+
+
+
+
+
+
 
         </div>
 
@@ -760,44 +788,134 @@ body {
 
 
 <script>
- const ligaSpiele = [
+// Dummy-Variable, um den Fehler beim Laden zu beheben
+const ligaSpieleErw = [];
+
+// Diese Variable hält die Spiele für den aktuellen Abend bereit
+let ligaSpiele = [];
+
+// Globale Funktion: Ermittelt immer den aktuell gültigen Namen (auch bei Auswechslungen)
+function getAktuellenSpielerName(kuersel, spielId) {
+    let basisName = document.getElementById(`input_${kuersel}`)?.value?.trim() || window.activePlayerNames?.[kuersel] || kuersel;
+    if (!window.mkk_wechselHistorie || window.mkk_wechselHistorie.length === 0) {
+        return basisName;
+    }
+    let aktiverName = basisName;
+    window.mkk_wechselHistorie.forEach(function(w) {
+        if (spielId >= w.abSpiel && w.rausKuersel === kuersel) {
+            aktiverName = w.nameRein;
+        }
+    });
+    return aktiverName;
+}
+
+
+
+
+
+// Offizieller Spielplan: MKK Bullshooter - Liga (34 Spiele)
+const standardPlanMKK = [
  { id: 1, modus: "501 MO/Doppel", heim: "H1 + H2", gast: "G2 + G4", type: "501", reihenfolge: ["H1", "G2", "H2", "G4"] },
- { id: 2, modus: "501 MO/Doppel", heim: "H3 + H4", gast: "G3 + G1", type: "501", reihenfolge: ["H3", "G3", "H4", "G1"] },
+ { id: 2, modus: "501 MO/Doppel", heim: "H3 + H4", gast: "G3 + G1", type: "501", reihenfolge: ["G3", "H3", "G1", "H4"] },
  { id: 3, modus: "501 MO", heim: "H1", gast: "G1", type: "501", reihenfolge: ["H1", "G1"] },
- { id: 4, modus: "501 MO", heim: "H4", gast: "G4", type: "501", reihenfolge: ["H4", "G4"] },
+ { id: 4, modus: "501 MO", heim: "H4", gast: "G4", type: "501", reihenfolge: ["G4", "H4"] },
  { id: 5, modus: "501 MO", heim: "H3", gast: "G3", type: "501", reihenfolge: ["H3", "G3"] },
- { id: 6, modus: "501 MO", heim: "H2", gast: "G2", type: "501", reihenfolge: ["H2", "G2"] },
- { id: 7, modus: "Cricket", heim: "H4 + H1", gast: "G2 + G3", type: "cricket", reihenfolge: ["H4", "G2", "H1", "G3"] }
- ];
- const ligaSpieleErw = [
- { id: 8, modus: "Cricket", heim: "H2 + H3", gast: "G4 + G2", type: "cricket", reihenfolge: ["H2", "G4", "H3", "G2"] },
- { id: 9, modus: "Cricket", heim: "H3 + H4", gast: "G1 + G4", type: "cricket", reihenfolge: ["H3", "G1", "H4", "G4"] },
- { id: 10, modus: "Cricket", heim: "H1 + H2", gast: "G1 + G3", type: "cricket", reihenfolge: ["H1", "G1", "H2", "G3"] },
- { id: 11, modus: "Cricket", heim: "H3 + H2", gast: "G4 + G3", type: "cricket", reihenfolge: ["H3", "G4", "H2", "G3"] },
- { id: 12, modus: "Cricket", heim: "H1 + H4", gast: "G1 + G2", type: "cricket", reihenfolge: ["H1", "G1", "H4", "G2"] },
+ { id: 6, modus: "501 MO", heim: "H2", gast: "G2", type: "501", reihenfolge: ["G2", "H2"] },
+ { id: 7, modus: "Cricket / Doppel", heim: "H4 + H1", gast: "G2 + G3", type: "cricket", reihenfolge: ["H4", "G2", "H1", "G3"] },
+ { id: 8, modus: "Cricket / Doppel", heim: "H2 + H3", gast: "G4 + G2", type: "cricket", reihenfolge: ["G4", "H2", "G2", "H3"] },
+ { id: 9, modus: "Cricket / Doppel", heim: "H3 + H4", gast: "G1 + G4", type: "cricket", reihenfolge: ["G1", "H3", "G4", "H4"] },
+ { id: 10, modus: "Cricket / Doppel", heim: "H1 + H2", gast: "G1 + G3", type: "cricket", reihenfolge: ["H1", "G1", "H2", "G3"] },
+ { id: 11, modus: "Cricket / Doppel", heim: "H3 + H2", gast: "G4 + G3", type: "cricket", reihenfolge: ["G4", "H3", "G3", "H2"] },
+ { id: 12, modus: "Cricket / Doppel", heim: "H1 + H4", gast: "G1 + G2", type: "cricket", reihenfolge: ["H1", "G1", "H4", "G2"] },
  { id: 13, modus: "501 MO", heim: "H2", gast: "G4", type: "501", reihenfolge: ["H2", "G4"] },
- { id: 14, modus: "501 MO", heim: "H1", gast: "G2", type: "501", reihenfolge: ["H1", "G2"] },
+ { id: 14, modus: "501 MO", heim: "H1", gast: "G2", type: "501", reihenfolge: ["G2", "H1"] },
  { id: 15, modus: "501 MO", heim: "H4", gast: "G3", type: "501", reihenfolge: ["H4", "G3"] },
- { id: 16, modus: "501 MO", heim: "H3", gast: "G1", type: "501", reihenfolge: ["H3", "G1"] },
- { id: 17, modus: "501 MO/Doppel", heim: "H4 + H1", gast: "G2 + G3", type: "501", reihenfolge: ["H4", "G2", "H1", "G3"] },
- { id: 18, modus: "501 MO/Doppel", heim: "H2 + H4", gast: "G1 + G4", type: "501", reihenfolge: ["H2", "G1", "H4", "G4"] },
- { id: 19, modus: "501 MO", heim: "H1", gast: "G3", type: "501", reihenfolge: ["H1", "G3"] },
+ { id: 16, modus: "501 MO", heim: "H3", gast: "G1", type: "501", reihenfolge: ["G1", "H3"] },
+ { id: 17, modus: "501 MO/Doppel", heim: "H1 + H4", gast: "G2 + G3", type: "501", reihenfolge: ["G2", "H4", "G3", "H1"] },
+ { id: 18, modus: "501 MO/Doppel", heim: "H2 + H3", gast: "G1 + G4", type: "501", reihenfolge: ["H2", "G1", "H3", "G4"] },
+ { id: 19, modus: "501 MO", heim: "H1", gast: "G3", type: "501", reihenfolge: ["G3", "H1"] },
  { id: 20, modus: "501 MO", heim: "H4", gast: "G2", type: "501", reihenfolge: ["H4", "G2"] },
- { id: 21, modus: "501 MO", heim: "H3", gast: "G4", type: "501", reihenfolge: ["H3", "G4"] },
+ { id: 21, modus: "501 MO", heim: "H3", gast: "G4", type: "501", reihenfolge: ["G4", "H3"] },
  { id: 22, modus: "501 MO", heim: "H2", gast: "G1", type: "501", reihenfolge: ["H2", "G1"] },
- { id: 23, modus: "Cricket", heim: "H1 + H3", gast: "G2 + G4", type: "cricket", reihenfolge: ["H1", "G2", "H3", "G4"] },
- { id: 24, modus: "Cricket", heim: "H3 + H1", gast: "G3 + G1", type: "cricket", reihenfolge: ["H3", "G3", "H1", "G1"] },
- { id: 25, modus: "Cricket", heim: "H4 + H3", gast: "G3 + G4", type: "cricket", reihenfolge: ["H4", "G3", "H3", "G4"] },
- { id: 26, modus: "Cricket", heim: "H2 + H1", gast: "G4 + G1", type: "cricket", reihenfolge: ["H2", "G4", "H1", "G1"] },
- { id: 27, modus: "Cricket", heim: "H3 + H1", gast: "G2 + G1", type: "cricket", reihenfolge: ["H3", "G2", "H1", "G1"] },
- { id: 28, modus: "Cricket", heim: "H2 + H3", gast: "G3 + G2", type: "cricket", reihenfolge: ["H2", "G3", "H3", "G2"] },
- { id: 29, modus: "501 MO", heim: "H4", gast: "G1", type: "501", reihenfolge: ["H4", "G1"] },
+ { id: 23, modus: "Cricket / Doppel", heim: "H1 + H3", gast: "G2 + G4", type: "cricket", reihenfolge: ["G2", "H1", "G4", "H3"] },
+ { id: 24, modus: "Cricket / Doppel", heim: "H4 + H2", gast: "G3 + G1", type: "cricket", reihenfolge: ["H4", "G3", "H2", "G1"] },
+ { id: 25, modus: "Cricket / Doppel", heim: "H4 + H3", gast: "G3 + G4", type: "cricket", reihenfolge: ["G3", "H4", "G4", "H3"] },
+ { id: 26, modus: "Cricket / Doppel", heim: "H2 + H4", gast: "G4 + G1", type: "cricket", reihenfolge: ["H2", "G4", "H4", "G1"] },
+ { id: 27, modus: "Cricket / Doppel", heim: "H3 + H1", gast: "G2 + G1", type: "cricket", reihenfolge: ["G2", "H3", "G1", "H1"] },
+ { id: 28, modus: "Cricket / Doppel", heim: "H2 + H3", gast: "G3 + G2", type: "cricket", reihenfolge: ["H2", "G3", "H1", "G2"] },
+ { id: 29, modus: "501 MO", heim: "H4", gast: "G1", type: "501", reihenfolge: ["G1", "H4"] },
  { id: 30, modus: "501 MO", heim: "H3", gast: "G2", type: "501", reihenfolge: ["H3", "G2"] },
- { id: 31, modus: "501 MO", heim: "H2", gast: "G3", type: "501", reihenfolge: ["H2", "G3"] },
+ { id: 31, modus: "501 MO", heim: "H2", gast: "G3", type: "501", reihenfolge: ["G3", "H2"] },
  { id: 32, modus: "501 MO", heim: "H1", gast: "G4", type: "501", reihenfolge: ["H1", "G4"] },
  { id: 33, modus: "501 MO/Doppel", heim: "H4 + H2", gast: "G1 + G2", type: "501", reihenfolge: ["H4", "G1", "H2", "G2"] },
- { id: 34, modus: "501 MO/Doppel", heim: "H1 + H3", gast: "G4 + G3", type: "501", reihenfolge: ["H1", "G4", "H3", "G3"] }
- ];
+ { id: 34, modus: "501 MO/Doppel", heim: "H1 + H3", gast: "G4 + G3", type: "501", reihenfolge: ["G4", "H1", "G3", "H3"] }
+];
+
+// Offizieller Spielplan: DSH Bullshooter - Liga (32 Spiele)
+const standardPlanDSH = [
+ { id: 1, modus: "501 MO/Doppel", heim: "H1 + H2", gast: "G3 + G4", type: "501", reihenfolge: ["H1", "G3", "H2", "G4"] },
+ { id: 2, modus: "501 MO/Doppel", heim: "H3 + H4", gast: "G1 + G2", type: "501", reihenfolge: ["G1", "H3", "G2", "H4"] },
+ { id: 3, modus: "501 MO/Doppel", heim: "H2 + H3", gast: "G4 + G1", type: "501", reihenfolge: ["H2", "G4", "H3", "G1"] },
+ { id: 4, modus: "501 MO/Doppel", heim: "H4 + H1", gast: "G2 + G3", type: "501", reihenfolge: ["G2", "H4", "G3", "H1"] },
+ { id: 5, modus: "501 MO", heim: "H1", gast: "G1", type: "501", reihenfolge: ["H1", "G1"] },
+ { id: 6, modus: "501 MO", heim: "H2", gast: "G2", type: "501", reihenfolge: ["G2", "H2"] },
+ { id: 7, modus: "501 MO", heim: "H3", gast: "G3", type: "501", reihenfolge: ["H3", "G3"] },
+ { id: 8, modus: "501 MO", heim: "H4", gast: "G4", type: "501", reihenfolge: ["G4", "H4"] },
+ { id: 9, modus: "501 MO", heim: "H1", gast: "G2", type: "501", reihenfolge: ["G2", "H1"] },
+ { id: 10, modus: "501 MO", heim: "H2", gast: "G3", type: "501", reihenfolge: ["H2", "G3"] },
+ { id: 11, modus: "501 MO", heim: "H4", gast: "G1", type: "501", reihenfolge: ["H4", "G1"] },
+ { id: 12, modus: "501 MO", heim: "H3", gast: "G4", type: "501", reihenfolge: ["G4", "H3"] },
+ { id: 13, modus: "Cricket / Doppel", heim: "H4 + H1", gast: "G2 + G3", type: "cricket", reihenfolge: ["H4", "G2", "H1", "G3"] },
+ { id: 14, modus: "Cricket / Doppel", heim: "H2 + H3", gast: "G4 + G2", type: "cricket", reihenfolge: ["G4", "H2", "G2", "H3"] },
+ { id: 15, modus: "Cricket / Doppel", heim: "H1 + H2", gast: "G1 + G4", type: "cricket", reihenfolge: ["H1", "G1", "H2", "G4"] },
+ { id: 16, modus: "Cricket / Doppel", heim: "H3 + H4", gast: "G1 + G3", type: "cricket", reihenfolge: ["G1", "H3", "G3", "H4"] },
+ { id: 17, modus: "Cricket / Doppel", heim: "H2 + H3", gast: "G4 + G3", type: "cricket", reihenfolge: ["H2", "G4", "H3", "G3"] },
+ { id: 18, modus: "Cricket / Doppel", heim: "H1 + H4", gast: "G2 + G4", type: "cricket", reihenfolge: ["G2", "H4", "G1", "H1"] },
+ { id: 19, modus: "Cricket / Doppel", heim: "H3 + H4", gast: "G3 + G2", type: "cricket", reihenfolge: ["H3", "G3", "H4", "G2"] },
+ { id: 20, modus: "Cricket / Doppel", heim: "H4 + H2", gast: "G1 + G4", type: "cricket", reihenfolge: ["G1", "H1", "G4", "H2"] },
+ { id: 21, modus: "501 MO", heim: "H1", gast: "G3", type: "501", reihenfolge: ["G3", "H1"] },
+ { id: 22, modus: "501 MO", heim: "H2", gast: "G4", type: "501", reihenfolge: ["H2", "G4"] },
+ { id: 23, modus: "501 MO", heim: "H3", gast: "G1", type: "501", reihenfolge: ["G1", "H3"] },
+ { id: 24, modus: "501 MO", heim: "H4", gast: "G2", type: "501", reihenfolge: ["H4", "G2"] },
+ { id: 25, modus: "501 MO", heim: "H1", gast: "G4", type: "501", reihenfolge: ["H1", "G4"] },
+ { id: 26, modus: "501 MO", heim: "H2", gast: "G1", type: "501", reihenfolge: ["G1", "H2"] },
+ { id: 27, modus: "501 MO", heim: "H3", gast: "G2", type: "501", reihenfolge: ["H3", "G2"] },
+ { id: 28, modus: "501 MO", heim: "H4", gast: "G3", type: "501", reihenfolge: ["G3", "H4"] },
+ { id: 29, modus: "501 MO/Doppel", heim: "H4 + H1", gast: "G2 + G3", type: "501", reihenfolge: ["H4", "G2", "H1", "G3"] },
+ { id: 30, modus: "501 MO/Doppel", heim: "H1 + H4", gast: "G3 + G2", type: "501", reihenfolge: ["G3", "H1", "G4", "H2"] },
+ { id: 31, modus: "501 MO/Doppel", heim: "H3 + H4", gast: "G1 + G2", type: "501", reihenfolge: ["H3", "G1", "H4", "G2"] },
+ { id: 32, modus: "501 MO/Doppel", heim: "H1 + H3", gast: "G4 + G2", type: "501", reihenfolge: ["G4", "H2", "G1", "H3"] }
+];
+
+function aktiviereLigaPlan() {
+  const dropdown = document.getElementById('ligaAuswahlDropdown');
+  const auswahl = dropdown ? dropdown.value : "MKK";
+  
+  if (auswahl === "DSH") {
+    ligaSpiele = JSON.parse(JSON.stringify(standardPlanDSH));
+    console.log("DSH Liga-Spielplan erfolgreich im Speicher geladen!");
+  } else {
+    ligaSpiele = JSON.parse(JSON.stringify(standardPlanMKK));
+    console.log("MKK Liga-Spielplan erfolgreich im Speicher geladen!");
+  }
+}
+
+// Sicheres Einklinken in das DOM nach dem Laden der Seite
+document.addEventListener('DOMContentLoaded', () => {
+  // Verhindert Abstürze des grünen Buttons
+  setTimeout(() => {
+    if (typeof startLigaSpiel === 'function') {
+      const originalStart = startLigaSpiel;
+      startLigaSpiel = function() {
+        aktiviereLigaPlan(); // Lädt vor dem Start die gewählte Liste
+        originalStart();
+      };
+      console.log("MKK-Liga-Wechsler erfolgreich scharfgeschaltet!");
+    }
+  }, 1000);
+});
+
+
  ligaSpiele.push(...ligaSpieleErw);
  
  const GRANBOARD_SERVICE_UUID = '442f1570-8a00-9a28-cbe1-e1d4212d53eb';
@@ -1370,7 +1488,8 @@ function updateMultiScoreGrid(spiel) {
       } else { 
         summeGast += score; 
       }
-      grid.innerHTML += '<div class="player-card' + teamKlasse + aktivKlasse + '"><div class="p-name">' + activePlayerNames[k] + ' (' + k + ')</div><div class="p-score">' + score + '</div></div>';
+grid.innerHTML += '<div class="player-card' + teamKlasse + aktivKlasse + '"><div class="p-name">' + getAktuellenSpielerName(k, spiel.id) + ' (' + k + ')</div><div class="p-score">' + score + '</div></div>';
+
     });
     
     if (spiel.reihenfolge.length === 4 && teamTotalContainer && teamTotalHeim && teamTotalGast) {
@@ -1407,27 +1526,33 @@ function updateMultiScoreGrid(spiel) {
     speichereSpielstand();
   }
 
+ // FIX: Aktualisiert die untere gelbe Namensleiste live bei Auswechslungen
+ var turnDisplay = document.getElementById('playerTurn');
+ if (turnDisplay && spiel.reihenfolge && spiel.reihenfolge[activePlayerIdx]) {
+   var werferJetzt = spiel.reihenfolge[activePlayerIdx];
+   turnDisplay.innerText = werferJetzt + ": " + getAktuellenSpielerName(werferJetzt, spiel.id);
+ }
 
-   // =================================================================
-  // ABSOLUT TRENNSCHARFE LEISTEN-ANZEIGE FÜR DIE UP-TO-DATE AUFNAHME
-  // =================================================================
-  var linksBox = document.getElementById('mkk_wuerfe_links');
-  var rechtsBox = document.getElementById('mkk_wuerfe_rechts');
-  if (linksBox) linksBox.style.display = 'none';
-  if (rechtsBox) rechtsBox.style.display = 'none';
+ // =================================================================
+ // ABSOLUT TRENNSCHARFE LEISTEN-ANZEIGE FÜR DIE UP-TO-DATE AUFNAHME
+ // =================================================================
+ var linksBox = document.getElementById('mkk_wuerfe_links');
+ var rechtsBox = document.getElementById('mkk_wuerfe_rechts');
+ if (linksBox) linksBox.style.display = 'none';
+ if (rechtsBox) rechtsBox.style.display = 'none';
 
-  let leisteRechts = document.getElementById('wurfAnzeigeRechts');
-  if (leisteRechts && typeof spiel !== 'undefined') {
-    // Holt das Kürzel des Spielers, der JETZT GERADE an der Reihe ist
-    var werferJetzt = spiel.reihenfolge[activePlayerIdx] || "Testspiel";
-    
-    if (!window.mkk_spieler_schubladen) window.mkk_spieler_schubladen = {};
-    let meineWuerfe = window.mkk_spieler_schubladen[werferJetzt] || [];
-    
-    if (meineWuerfe.length > 0) {
-      // Zeigt strikt nur die Würfe an, die dieser Spieler in SEINER aktuellen Aufnahme erzielt hat
-      leisteRechts.innerText = meineWuerfe.join(" | ");
-    } else {
+ let leisteRechts = document.getElementById('wurfAnzeigeRechts');
+ if (leisteRechts && typeof spiel !== 'undefined') {
+   // Holt das Kürzel des Spielers, der JETZT GERADE an der Reihe ist
+   var werferJetzt = spiel.reihenfolge[activePlayerIdx] || "Testspiel";
+
+   if (!window.mkk_spieler_schubladen) window.mkk_spieler_schubladen = {};
+   let meineWuerfe = window.mkk_spieler_schubladen[werferJetzt] || [];
+
+   if (meineWuerfe.length > 0) {
+     // Zeigt strikt nur die Würfe an, die dieser Spieler in SEINER aktuellen Aufnahme erzielt hat
+     leisteRechts.innerText = meineWuerfe.join(" | ");
+   } else {
       // Wenn der neue Spieler noch nicht geworfen hat, steht dort sofort sauber "Bereit..."
       leisteRechts.innerText = "Bereit...";
     }
@@ -2793,21 +2918,16 @@ function getSpielerNameFuerSpiel(kuersel, spielNummer){
 
 
 
-
-
-
 // =================================================================
-// FIX: ECHTE SPIELERNAMEN & GEWINNER-KÜRZEL IM SPIELPLAN (TEIL 1)
+// FINALE REPARATUR: EXAKTER SPIELPLAN MIT GEWINNER-HIGHTLIGHT (TEIL 1)
 // =================================================================
 function druckeSpielberichtPDF() {
-  console.log("MKK-System: Generiere vollständigen PDF-Ausdruck mit echten Spielernamen...");
+  console.log("MKK-System: Generiere fehlerfreien PDF-Spielbericht...");
   
-  // Holt die gespeicherten Mannschaftsnamen
   var heimTeamName = localStorage.getItem('mkk_teamNameHeim') || window.teamNameHeim || "Heimteam";
   var gastTeamName = localStorage.getItem('mkk_teamNameGast') || window.teamNameGast || "Gastteam";
   var ergebnisText = document.getElementById('totalLeagueScore') ? document.getElementById('totalLeagueScore').innerText : "0 : 0";
   
-  // Generiert das aktuelle Tagesdatum im deutschen Format
   var heute = new Date();
   var tag = String(heute.getDate()).padStart(2, '0');
   var monat = String(heute.getMonth() + 1).padStart(2, '0');
@@ -2817,7 +2937,6 @@ function druckeSpielberichtPDF() {
   var heimSlots = ['H1', 'H2', 'H3', 'H4', 'HE1', 'HE2', 'HE3', 'HE4'];
   var gastSlots = ['G1', 'G2', 'G3', 'G4', 'GE1', 'GE2', 'GE3', 'GE4'];
   
-  // Hilfsfunktion für Spielernamen und Passnummern
   function holeSpielerMitPassnummer(slot, istHeim) {
     var inputEl = document.getElementById('input_' + slot);
     var name = inputEl ? inputEl.value.trim() : (window.activePlayerNames ? window.activePlayerNames[slot] : "");
@@ -2828,47 +2947,37 @@ function druckeSpielberichtPDF() {
     if (MKK_TEAM_SPEICHER && MKK_TEAM_SPEICHER[aktTeam] && MKK_TEAM_SPEICHER[aktTeam].passnummern) {
       passNummer = MKK_TEAM_SPEICHER[aktTeam].passnummern[name] || "";
     }
-    
-    return {
-      name: name,
-      slot: slot,
-      pass: passNummer ? " (Pass-Nr: " + passNummer + ")" : " (Keine Pass-Nr)"
-    };
+    return { name: name, slot: slot, pass: passNummer ? " (Pass-Nr: " + passNummer + ")" : " (Keine Pass-Nr)" };
   }
 
-  // Hilfsfunktion: Holt den echten, aktuell eingetragenen Namen für ein bestimmtes Kürzel (z.B. "H1")
   function holeAktuellenNamenFuerKuerzel(kuerzel) {
     if (!kuerzel) return "";
     var inputEl = document.getElementById('input_' + kuerzel);
-    if (inputEl && inputEl.value.trim() !== "") {
-      return inputEl.value.trim();
-    }
-    if (window.activePlayerNames && window.activePlayerNames[kuerzel]) {
-      return window.activePlayerNames[kuerzel];
-    }
+    if (inputEl && inputEl.value.trim() !== "") return inputEl.value.trim();
+    if (window.activePlayerNames && window.activePlayerNames[kuerzel]) return window.activePlayerNames[kuerzel];
     return kuerzel;
   }
 
   var alleHeimSpieler = [];
-  heimSlots.forEach(function(s) {
-    var sObj = holeSpielerMitPassnummer(s, true);
-    if (sObj) alleHeimSpieler.push(sObj);
-  });
+  heimSlots.forEach(function(s) { var sObj = holeSpielerMitPassnummer(s, true); if (sObj) alleHeimSpieler.push(sObj); });
 
   var alleGastSpieler = [];
-  gastSlots.forEach(function(s) {
-    var sObj = holeSpielerMitPassnummer(s, false);
-    if (sObj) alleGastSpieler.push(sObj);
-  });
+  gastSlots.forEach(function(s) { var sObj = holeSpielerMitPassnummer(s, false); if (sObj) alleGastSpieler.push(sObj); });
 
-  // Berechnet die Einsätze für die Statistik
+  // Hilfsfunktion: Berechnet die Einsätze eines Akteurs am Abend unbestechlich
   function berechneSpieleFuerSpieler(kuersel, name) {
     if (typeof ligaSpiele === 'undefined') return 0;
     let einsaetze = 0;
-    ligaSpiele.forEach(function(spiel, idx) {
-      if (idx >= currentMatchIndex) return; 
-      if (!spiel.reihenfolge) return;
+    
+    // Durchläuft alle gespielten Matches
+    for (let idx = 0; idx < ligaSpiele.length; idx++) {
+      var spiel = ligaSpiele[idx];
+      // Nur bereits gewertete Spiele zählen (Ergebnis liegt vor)
+      var spielGespielt = (spiel.punkteHeim > 0 || spiel.punkteGast > 0 || spiel.legsHeim > 0 || spiel.legsGast > 0);
+      if (!spielGespielt || !spiel.reihenfolge) continue;
+      
       let istImMatch = spiel.reihenfolge.includes(kuersel);
+      
       if (window.mkk_wechselHistorie && window.mkk_wechselHistorie.length > 0) {
         window.mkk_wechselHistorie.forEach(function(w) {
           if (spiel.id >= w.abSpiel && w.rausKuersel === kuersel && name !== w.nameRein) istImMatch = false;
@@ -2876,7 +2985,7 @@ function druckeSpielberichtPDF() {
         });
       }
       if (istImMatch) einsaetze++;
-    });
+    }
     return einsaetze;
   }
 
@@ -2897,109 +3006,175 @@ function druckeSpielberichtPDF() {
   html += '<div class="meta-zeile"><div>Spielmodus: 501 / Cricket Multi-Match</div><div>Datum: ' + aktuellesDatumText + '</div></div>';
   html += '<div class="header-box"><div>HEIM: ' + heimTeamName + '</div><div style="font-size:22px;">' + ergebnisText + '</div><div>GAST: ' + gastTeamName + '</div></div>';
 
-  // 1. TABELLE: DER SPIELPLAN MIT ECHTEN NAMEN AUS DEN TEXTBELDERN 🎯
-  html += '<h2>| 🎯 GESPIELTE PAARUNGEN & EINZELERGEBNISSE (KOMPLETTER SPIELPLAN)</h2>';
-  html += '<table><thead><tr><th class="text-center" style="width:6%;">NR.</th><th>HEIM-SPIELER</th><th>GAST-SPIELER</th><th class="text-center" style="width:10%;">LEGS</th><th class="text-center" style="width:10%;">PUNKT</th></tr></thead><tbody>';
+  html += '<h2>| 🎯 GESPIELTE PAARUNGEN & EINZELERGEBNISSE (LIGA-SPIELPLAN)</h2>';
+  html += '<table><thead><tr>' +
+          '<th class="text-center" style="width:6%;">Nr.</th>' +
+          '<th style="width:15%;">Spielmodus</th>' +
+          '<th>Begegnung (Heim vs. Gast)</th>' +
+          '<th class="text-center" style="width:12%;">Sieger</th>' +
+          '<th class="text-center" style="width:12%;">Ergebnis</th>' +
+          '</tr></thead><tbody>';
   
   if (typeof ligaSpiele !== 'undefined' && ligaSpiele.length > 0) {
     ligaSpiele.forEach(function(spiel) {
-      // Ermittelt, wie viele Spieler in diesem Match registriert sind
+      // Erkennung ob das Spiel beendet wurde
+      var spielGespielt = (spiel.punkteHeim > 0 || spiel.punkteGast > 0 || spiel.legsHeim > 0 || spiel.legsGast > 0);
       var istDoppel = (spiel.reihenfolge && spiel.reihenfolge.length === 4);
+      var begegnungText = "";
+      var siegerText = "";
       
-      var nameHeimText = "";
-      var nameGastText = "";
-      
+      var modusText = istDoppel ? "501 MO/Doppel" : "501 MO";
+      if (spiel.type && spiel.type.toString().toUpperCase().includes("CRICKET")) {
+        modusText = istDoppel ? "Cricket/Doppel" : "Cricket";
+      }
+
+      // FIXED: Trennung nach den echten Heim-Slots und Gast-Slots
       if (istDoppel) {
-        // Holt die echten Namen der 4 Doppel-Partner aus den Dropdowns
-        var h1Kuerzel = spiel.reihenfolge[0];
-        var h2Kuerzel = spiel.reihenfolge[1];
-        var g1Kuerzel = spiel.reihenfolge[2];
-        var g2Kuerzel = spiel.reihenfolge[3];
+        var nH1 = holeAktuellenNamenFuerKuerzel(spiel.reihenfolge[0]);
+        var nH2 = holeAktuellenNamenFuerKuerzel(spiel.reihenfolge[1]);
+        var nG1 = holeAktuellenNamenFuerKuerzel(spiel.reihenfolge[2]);
+        var nG2 = holeAktuellenNamenFuerKuerzel(spiel.reihenfolge[3]);
         
-        var nH1 = holeAktuellenNamenFuerKuerzel(h1Kuerzel);
-        var nH2 = holeAktuellenNamenFuerKuerzel(h2Kuerzel);
-        var nG1 = holeAktuellenNamenFuerKuerzel(g1Kuerzel);
-        var nG2 = holeAktuellenNamenFuerKuerzel(g2Kuerzel);
+        begegnungText = nH1 + " + " + nH2 + " vs. " + nG1 + " + " + nG2;
         
-        nameHeimText = nH1 + " / " + nH2;
-        nameGastText = nG1 + " / " + nG2;
-        
-        // Gewinner ermitteln, fett markieren und Team-Kürzel anhängen
-        if (spiel.punkteHeim > spiel.punkteGast) {
-          nameHeimText = "<b>" + nameHeimText + " [HEIM]</b>";
-        } else if (spiel.punkteGast > spiel.punkteHeim) {
-          nameGastText = "<b>" + nameGastText + " [GAST]</b>";
+        if (spiel.punkteHeim > spiel.punkteGast && spielGespielt) {
+          begegnungText = "<u><b>" + nH1 + " + " + nH2 + "</b></u> vs. " + nG1 + " + " + nG2;
+          siegerText = "<b>HEIM</b>";
+        } else if (spiel.punkteGast > spiel.punkteHeim && spielGespielt) {
+          begegnungText = nH1 + " + " + nH2 + " vs. <u><b>" + nG1 + " + " + nG2 + "</b></u>";
+          siegerText = "<b>GAST</b>";
         }
       } else {
-        // Holt die echten Namen für die Einzel-Gegner aus den Kürzeln (z.B. "H1" und "G1")
-        var kh = (spiel.reihenfolge && spiel.reihenfolge[0]) ? spiel.reihenfolge[0] : "H1";
-        var kg = (spiel.reihenfolge && spiel.reihenfolge[1]) ? spiel.reihenfolge[1] : "G1";
+        var kh = spiel.reihenfolge[0] || "H1";
+        var kg = spiel.reihenfolge[1] || "G1";
         
-        nameHeimText = holeAktuellenNamenFuerKuerzel(kh);
-        nameGastText = holeAktuellenNamenFuerKuerzel(kg);
+        var nameH = holeAktuellenNamenFuerKuerzel(kh);
+        var nameG = holeAktuellenNamenFuerKuerzel(kg);
+        begegnungText = nameH + " vs. " + nameG;
         
-        // Gewinner fett markieren und seine exakte Position (z.B. [H1] oder [G3]) anhängen!
-        if (spiel.punkteHeim > spiel.punkteGast) {
-          nameHeimText = "<b>" + nameHeimText + " [" + kh + "]</b>";
-        } else if (spiel.punkteGast > spiel.punkteHeim) {
-          nameGastText = "<b>" + nameGastText + " [" + kg + "]</b>";
+        if (spiel.punkteHeim > spiel.punkteGast && spielGespielt) {
+          begegnungText = "<u><b>" + nameH + "</b></u> vs. " + nameG;
+          siegerText = "<b>" + kh + "</b>";
+        } else if (spiel.punkteGast > spiel.punkteHeim && spielGespielt) {
+          begegnungText = nameH + " vs. <u><b>" + nameG + "</b></u>";
+          siegerText = "<b>" + kg + "</b>";
         }
       }
       
-      var legsText = (spiel.legsHeim !== undefined && spiel.legsHeim !== null) ? (spiel.legsHeim + " : " + spiel.legsGast) : "";
-      var punktText = (spiel.punkteHeim !== undefined && spiel.punkteHeim !== null) ? (spiel.punkteHeim + " : " + spiel.punkteGast) : "";
+      var ergebnisTextZeile = spielGespielt ? (spiel.punkteHeim + " : " + spiel.punkteGast) : "";
       
       html += '<tr>' +
-              '<td class="text-center"><b>' + spiel.id + '</b></td>' +
-              '<td>' + nameHeimText + '</td>' +
-              '<td>' + nameGastText + '</td>' +
-              '<td class="text-center" style="font-weight:bold;">' + legsText + '</td>' +
-              '<td class="text-center" style="font-weight:bold; background-color:#fafafa;">' + punktText + '</td>' +
+              '<td class="text-center">' + spiel.id + '</td>' +
+              '<td>' + modusText + '</td>' +
+              '<td>' + begegnungText + '</td>' +
+              '<td class="text-center">' + siegerText + '</td>' +
+              '<td class="text-center" style="font-weight:bold; background-color:#fafafa;">' + ergebnisTextZeile + '</td>' +
               '</tr>';
     });
   } else {
-    html += '<tr><td colspan="4" class="text-center">Der Spielplan konnte nicht geladen werden.</td></tr>';
+    html += '<tr><td colspan="5" class="text-center">Der Spielplan konnte nicht geladen werden.</td></tr>';
   }
   html += '</tbody></table>';
+
+
   // =================================================================
-  // LIGA-PDF DRUCKFUNKTION (TEIL 2 - LEISTUNGSWERTE & HIGHLIGHTS UNTEN)
+  // FINALE REPARATUR: EXAKTER SPIELPLAN MIT GEWINNER-HIGHTLIGHT (TEIL 2)
   // =================================================================
 
-  // 2. TABELLE: LEISTUNGSWERTE HEIMTEAM
+  // 2. TABELLE: LEISTUNGSWERTE HEIMTEAM (STATISTIK-KORREKTUR)
   html += '<h2>| 📊 SPIELER-LEISTUNGSPUNKTE: ' + heimTeamName.toUpperCase() + '</h2>';
-  html += '<table><thead><tr><th>SPIELERNAME (PASS-NR)</th><th class="text-center">SPIELE</th><th class="text-center">SIEGE (CHECKS)</th><th class="text-center">ASSISTS</th><th class="text-center">GESAMTPUNKTE</th></tr></thead><tbody>';
+  html += '<table><thead><tr>' +
+          '<th>SPIELERNAME (PASS-NR)</th>' +
+          '<th class="text-center" style="width:12%;">SPIELE</th>' +
+          '<th class="text-center" style="width:15%;">SIEGE (CHECKS)</th>' +
+          '<th class="text-center" style="width:12%;">ASSISTS</th>' +
+          '<th class="text-center" style="width:15%;">GESAMTPUNKTE</th>' +
+          '</tr></thead><tbody>';
   
   alleHeimSpieler.forEach(function(sp) {
-    var stats = (window.spielerStats && window.spielerStats[sp.name]) ? window.spielerStats[sp.name] : { siege: 0, assists: 0 };
     var spieleAnzahl = berechneSpieleFuerSpieler(sp.slot, sp.name);
-    var gesamt = (stats.siege || 0) + (stats.assists || 0);
+    var echteSiege = 0;
+    var echteAssists = 0;
     
+    if (typeof ligaSpiele !== 'undefined') {
+      ligaSpiele.forEach(function(spiel) {
+        var spielGespielt = (spiel.punkteHeim > 0 || spiel.punkteGast > 0 || spiel.legsHeim > 0 || spiel.legsGast > 0);
+        if (!spielGespielt || !spiel.reihenfolge) return;
+        
+        var istDoppel = (spiel.reihenfolge.length === 4);
+        
+        if (istDoppel) {
+          if (spiel.punkteHeim > spiel.punkteGast) {
+            if (spiel.reihenfolge === sp.slot) echteSiege++;
+            if (spiel.reihenfolge === sp.slot) echteAssists++;
+          }
+        } else {
+          if (spiel.punkteHeim > spiel.punkteGast && spiel.reihenfolge === sp.slot) {
+            echteSiege++;
+          }
+        }
+      });
+    }
+    
+    var gesamt = echteSiege + echteAssists;
+    // Nur unterstreichen und fett markieren, wenn der Spieler wirklich ein Spiel absolviert hat!
     var highlightKlasse = (spieleAnzahl > 0) ? ' class="aktiv-aktiv"' : '';
     
-    html += '<tr' + highlightKlasse + '><td>' + sp.name + '<small style="color:#555">' + sp.pass + '</small> <small>(' + sp.slot + ')</small></td>' +
-            '<td class="text-center">' + spieleAnzahl + '</td>' +
-            '<td class="text-center" style="color:green;">' + (stats.siege || 0) + '</td>' +
-            '<td class="text-center">' + (stats.assists || 0) + '</td>' +
-            '<td class="text-center">' + gesamt + '</td></tr>';
+    html += '<tr' + highlightKlasse + '>' +
+            '<td>' + sp.name + '<small style="color:#555">' + sp.pass + '</small> <small>(' + sp.slot + ')</small></td>' +
+            '<td class="text-center" style="font-weight:bold;">' + spieleAnzahl + '</td>' +
+            '<td class="text-center" style="color:green; font-weight:bold;">' + echteSiege + '</td>' +
+            '<td class="text-center">' + echteAssists + '</td>' +
+            '<td class="text-center" style="font-weight:bold;">' + gesamt + '</td>' +
+            '</tr>';
   });
   html += '</tbody></table>';
 
-  // 3. TABELLE: LEISTUNGSWERTE GASTTEAM
+  // 3. TABELLE: LEISTUNGSWERTE GASTTEAM (STATISTIK-KORREKTUR)
   html += '<h2>| 📊 SPIELER-LEISTUNGSPUNKTE: ' + gastTeamName.toUpperCase() + '</h2>';
-  html += '<table><thead><tr><th>SPIELERNAME (PASS-NR)</th><th class="text-center">SPIELE</th><th class="text-center">SIEGE (CHECKS)</th><th class="text-center">ASSISTS</th><th class="text-center">GESAMTPUNKTE</th></tr></thead><tbody>';
+  html += '<table><thead><tr> ' +
+          '<th>SPIELERNAME (PASS-NR)</th>' +
+          '<th class="text-center" style="width:12%;">SPIELE</th>' +
+          '<th class="text-center" style="width:15%;">SIEGE (CHECKS)</th>' +
+          '<th class="text-center" style="width:12%;">ASSISTS</th>' +
+          '<th class="text-center" style="width:15%;">GESAMTPUNKTE</th>' +
+          '</tr></thead><tbody>';
   
   alleGastSpieler.forEach(function(sp) {
-    var stats = (window.spielerStats && window.spielerStats[sp.name]) ? window.spielerStats[sp.name] : { siege: 0, assists: 0 };
     var spieleAnzahl = berechneSpieleFuerSpieler(sp.slot, sp.name);
-    var gesamt = (stats.siege || 0) + (stats.assists || 0);
+    var echteSiege = 0;
+    var echteAssists = 0;
     
+    if (typeof ligaSpiele !== 'undefined') {
+      ligaSpiele.forEach(function(spiel) {
+        var spielGespielt = (spiel.punkteHeim > 0 || spiel.punkteGast > 0 || spiel.legsHeim > 0 || spiel.legsGast > 0);
+        if (!spielGespielt || !spiel.reihenfolge) return;
+        
+        var istDoppel = (spiel.reihenfolge.length === 4);
+        
+        if (istDoppel) {
+          if (spiel.punkteGast > spiel.punkteHeim) {
+            if (spiel.reihenfolge === sp.slot) echteSiege++;
+            if (spiel.reihenfolge === sp.slot) echteAssists++;
+          }
+        } else {
+          if (spiel.punkteGast > spiel.punkteHeim && spiel.reihenfolge === sp.slot) {
+            echteSiege++;
+          }
+        }
+      });
+    }
+    
+    var gesamt = echteSiege + echteAssists;
     var highlightKlasse = (spieleAnzahl > 0) ? ' class="aktiv-aktiv"' : '';
     
-    html += '<tr' + highlightKlasse + '><td>' + sp.name + '<small style="color:#555">' + sp.pass + '</small> <small>(' + sp.slot + ')</small></td>' +
-            '<td class="text-center">' + spieleAnzahl + '</td>' +
-            '<td class="text-center" style="color:green;">' + (stats.siege || 0) + '</td>' +
-            '<td class="text-center">' + (stats.assists || 0) + '</td>' +
-            '<td class="text-center">' + gesamt + '</td></tr>';
+    html += '<tr' + highlightKlasse + '>' +
+            '<td>' + sp.name + '<small style="color:#555">' + sp.pass + '</small> <small>(' + sp.slot + ')</small></td>' +
+            '<td class="text-center" style="font-weight:bold;">' + spieleAnzahl + '</td>' +
+            '<td class="text-center" style="color:green; font-weight:bold;">' + echteSiege + '</td>' +
+            '<td class="text-center">' + echteAssists + '</td>' +
+            '<td class="text-center" style="font-weight:bold;">' + gesamt + '</td>' +
+            '</tr>';
   });
   html += '</tbody></table>';
 
@@ -3016,7 +3191,7 @@ function druckeSpielberichtPDF() {
   }
   html += '</div>';
 
-  // 5. TABELLE: BESONDERE HIGHLIGHTS REIST JETZT NACH UNTEN DIREKT VOR DIE UNTERSCHRIFTEN
+  // 5. TABELLE: BESONDERE HIGHLIGHTS
   html += '<h2>| 🔥 BESONDERE HIGHLIGHTS (SCORES & HIGH-CHECKS)</h2>';
   html += '<table><thead><tr><th>SPIELERNAME (MANNSCHAFT)</th><th class="text-center">150ER+</th><th class="text-center">180ER</th><th class="text-center">U100 HIGH FINISH</th></tr></thead><tbody>';
   
@@ -3031,7 +3206,8 @@ function druckeSpielberichtPDF() {
       html += '<tr><td>' + sp.name + sp.pass + ' <small>(' + sp.team + ')</small></td>' +
               '<td class="text-center">' + (stats.h150 || 0) + '</td>' +
               '<td class="text-center">' + (stats.h180 || 0) + '</td>' +
-              '<td class="text-center">' + (stats.hf100 || 0) + '</td></tr>';
+              '<td class="text-center">' + (stats.hf100 || 0) + '</td>' +
+              '</tr>';
     }
   });
   if (!hatHighlights) {
@@ -3039,7 +3215,7 @@ function druckeSpielberichtPDF() {
   }
   html += '</tbody></table>';
 
-  // Unterschriftenfelder bilden den endgültigen Abschluss des Dokuments
+  // Unterschriftenfelder
   html += '<div style="margin-top: 50px; display: flex; justify-content: space-between; font-size:12px;">';
   html += '<div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px;">Unterschrift Kapitän HEIM (' + (localStorage.getItem('mkk_kapitaenHeim') || window.kapitaenHeim || "Heim") + ')</div>';
   html += '<div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px;">Unterschrift Kapitän GAST (' + (localStorage.getItem('mkk_kapitaenGast') || window.kapitaenGast || "Gast") + ')</div>';
@@ -3055,6 +3231,11 @@ function druckeSpielberichtPDF() {
     printWindow.print();
   }, 500);
 }
+
+
+
+
+
 
 
 
